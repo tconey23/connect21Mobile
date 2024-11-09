@@ -69,7 +69,7 @@ const Stage3 = ({ setStartGame, canSelect, selectionLimit, setSelectionCount, on
           <TextInput
             multiline
             placeholder={`Write something about '${stageSelections[2]}'`}
-            autoFocus={true}
+            autoFocus={false}
             style={{ maxWidth: '85%' }}
           />
       </View>
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     elevation: 10,
-    width: 400,
+    width: width,
     alignItems: 'center',
     marginTop: 15,
     marginBottom: -10,

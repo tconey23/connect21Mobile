@@ -10,7 +10,7 @@ import HexButton from './HexButton'
 export default function App() {
 
   const [startGame, setStartGame] = useState(false)
-  const [fontsLoaded, setFontsLoaded] = useState(true);
+  // const [fontsLoaded, setFontsLoaded] = useState(true);
 
   
   // const loadFonts = async () => {
@@ -26,7 +26,7 @@ export default function App() {
   // }, [])
   
 
-  return (
+  return ( 
     <SafeAreaView style={styles.container}>
       {startGame ?
         <GamePage setStartGame={setStartGame}/>

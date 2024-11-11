@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { View, ScrollView,Text, TextInput, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, ScrollView,Text, TextInput, StyleSheet, Dimensions, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
@@ -8,7 +8,7 @@ import Selection from './Selection';
 
 const { width, height } = Dimensions.get('window');
 
-const Stage3 = ({ setStartGame, canSelect, selectionLimit, setSelectionCount, onSelection, stageSelections, currentStage, selectionCount }) => {
+const Stage3 = ({ saveDatePlayed, canSelect, selectionLimit, setSelectionCount, onSelection, stageSelections, currentStage, selectionCount }) => {
   const viewRef = useRef(null);
 
   const takeScreenshotAndShare = async () => {
@@ -33,30 +33,34 @@ const Stage3 = ({ setStartGame, canSelect, selectionLimit, setSelectionCount, on
       });
   
       await RNFS.unlink(filePath);
+      saveDatePlayed()
     } catch (error) {
       console.error('Error taking screenshot and sharing:', error);
     }
   };
  
   return (
+    <KeyboardAvoidingView
+    style={styles.container}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // iOS uses 'padding', Android 'height' or 'padding'
+    keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0} // Adjust as needed
+  >
+
     <View style={styles.container}>
-        {/* <TouchableOpacity style={[styles.button, {width: 20, height: 30, borderRadius: 30, marginTop: 20, alignSelf: "flex-end", backgroundColor: 'white', elevation: 20, borderColor: 'black', borderWidth: 1}]} onPress={() => setStartGame(false)}>
-          <Text style={styles.buttonText}>X</Text>
-        </TouchableOpacity> */}
         <ScrollView ref={viewRef} style={styles.screenshot}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', height: '75%' }}>
             {stageSelections && stageSelections[0] && stageSelections[0].map((opt, i) => (
               <Selection
-                key={i}
-                option={opt}
-                canSelect={canSelect}
-                selectionLimit={selectionLimit}
-                setSelectionCount={setSelectionCount}
-                onSelection={onSelection}
-                selected={stageSelections[currentStage].includes(opt)}
-                selectionCount={selectionCount}
-                stageSelections={stageSelections}
-                currentStage={currentStage}
+              key={i}
+              option={opt}
+              canSelect={canSelect}
+              selectionLimit={selectionLimit}
+              setSelectionCount={setSelectionCount}
+              onSelection={onSelection}
+              selected={stageSelections[currentStage].includes(opt)}
+              selectionCount={selectionCount}
+              stageSelections={stageSelections}
+              currentStage={currentStage}
               />
             ))}
           </View>
@@ -64,9 +68,10 @@ const Stage3 = ({ setStartGame, canSelect, selectionLimit, setSelectionCount, on
           <TextInput
             multiline
             placeholder={`Write something about '${stageSelections[2]}'`}
-            autoFocus={false}
-            style={{ maxWidth: '85%' }}
-          />
+            autoFocus={true}
+            style={{ maxWidth: '85%', color: 'black'}}
+            
+            />
       </View>
         </ScrollView>
       <View style={styles.buttonContainer}>
@@ -75,6 +80,7 @@ const Stage3 = ({ setStartGame, canSelect, selectionLimit, setSelectionCount, on
         </TouchableOpacity>
       </View>
     </View>
+  </KeyboardAvoidingView>
   );
 };
 

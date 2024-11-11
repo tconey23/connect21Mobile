@@ -11,7 +11,7 @@ import Hexagon from './Hexagon';
 const fontSize = PixelRatio.getFontScale() * 25;
 const { width, height } = Dimensions.get('window')
 
-const GamePage = ({ setStartGame, prompts }) => {
+const GamePage = ({ setStartGame, prompts, saveDatePlayed }) => {
   const [stageSelections, setStageSelections] = useState({ 0: [], 1: [], 2: [], 3: [] }); // Store selections for each stage
   const [options, setOptions] = useState([]);
   const [fontsLoaded, setFontsLoaded] = useState(true);
@@ -85,11 +85,11 @@ const GamePage = ({ setStartGame, prompts }) => {
     let hexArray = []
 
     for(let i = 0; i < selectionLimit - selectionCount; i++){
-      hexArray.push(<Hexagon currentStage={currentStage}/>)
+      hexArray.push(<Hexagon key={i} currentStage={currentStage}/>)
     }
 
     for(let i = 0; i < selectionCount; i++){
-      hexArray.push(<Hexagon currentStage={currentStage} state={true}/>)
+      hexArray.push(<Hexagon key={i} currentStage={currentStage} state={true}/>)
     }
 
     setHexagons(hexArray)
@@ -173,6 +173,7 @@ const GamePage = ({ setStartGame, prompts }) => {
           stageSelections={stageSelections}
           selectionCount={selectionCount}
           setStartGame={setStartGame}
+          saveDatePlayed={saveDatePlayed}
           />
         );
       default:
@@ -184,6 +185,10 @@ const GamePage = ({ setStartGame, prompts }) => {
     currentStage > 0 ? setCurrentStage((prev) => prev - 1) : setStartGame(false)
   }
 
+  useEffect(() => {
+    console.log(options)
+  }, [prompts])
+
   return (
     <View style={styles.container}>
       {currentStage === 0 && <Text style={styles.headerText}>Select the 6 that most boost your mood!</Text>}
@@ -192,17 +197,17 @@ const GamePage = ({ setStartGame, prompts }) => {
       {currentStage < 3 && <View style={{flexDirection: 'row-reverse'}}>{hexagons}</View>}
       {fontsLoaded && renderCurrentStage()}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.button}
+        {currentStage !== 3 &&<TouchableOpacity
+          style={[styles.button, {backgroundColor: purple}]}
           onPress={() =>
             handleBack()
           }
         >
           <Text style={styles.text}>BACK</Text>
-        </TouchableOpacity>
+        </TouchableOpacity>}
         {selectionLimit === selectionCount && (
           <TouchableOpacity
-            style={styles.button}
+          style={[styles.button, {backgroundColor: purple}]}
             onPress={() => setCurrentStage((prev) => prev + 1)}
           >
             <Text style={styles.text}>NEXT</Text>
@@ -237,7 +242,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     height: 40,
-    marginTop: 40,
+    marginTop: 20,
+    marginBottom: 20
   },
   text: {
     fontFamily: 'Fredoka',

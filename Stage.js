@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, TextInput } from 'react-native';
 import Selection from './Selection';
 
 const Stage = ({ currentStage, options, selectionCount, setSelectionCount, canSelect, setCanSelect, selectionLimit, onDeselection, onSelection }) => { 
@@ -7,7 +7,7 @@ const Stage = ({ currentStage, options, selectionCount, setSelectionCount, canSe
     <ScrollView style={{ flex: 1 }}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', height: '75%' }}>
         {options && options.map((opt, i) => {
-          if (i < 20) {
+          if (i < 21) {
             return (
               <Selection
                 key={i}

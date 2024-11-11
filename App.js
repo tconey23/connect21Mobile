@@ -1,64 +1,85 @@
-
-import { StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
 import GamePage from './GamePage';
-// import * as Font from 'expo-font';
-import 'react-native-reanimated';
+import UserPrompt from './UserPrompt';
 import React from 'react';
 import LandingAnimation from './LandingAnimation';
-import HexButton from './HexButton'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export default function App() {
-
-  const [startGame, setStartGame] = useState(false)
-  const [categoryName, setCategoryName] = useState() 
-  const [prompts, setPrompts] = useState()
-
-  // const [fontsLoaded, setFontsLoaded] = useState(true);
-
-  
-  // const loadFonts = async () => {
-  //   await Font.loadAsync({
-  //     'Roboto': require('./assets/fonts/Roboto_Mono/RobotoMono-VariableFont_wght.ttf'),
-  //     'Fredoka': require('./assets/fonts/Fredoka/static/Fredoka-Regular.ttf'),
-  //   });
-  //   setFontsLoaded(true);
-  // };
-
-  // useEffect(() => {
-  //   loadFonts()
-  // }, [])
+  const [startGame, setStartGame] = useState(false);
+  const [categoryName, setCategoryName] = useState();
+  const [prompts, setPrompts] = useState();
+  const [playedToday, setPlayedToday] = useState(false);
 
   const fetchOptions = async () => {
-    console.log('fetching')
     try {
       const res = await fetch('https://raw.githubusercontent.com/tconey23/connect21_be/refs/heads/main/ServerData/gptResp.json');
       const data = await res.json();
-     
       if (data) {
         setPrompts(Object.values(data)[0]);
-        setCategoryName(Object.keys(data)[0])
+        setCategoryName(Object.keys(data)[0]);
       }
-
     } catch (error) {
-      // console.error('Error fetching options:', error);
+      console.error('Error fetching options:', error);
     }
   };
 
-  useEffect(() => {
-    fetchOptions()
-  }, [])
-  
+  const checkIfPlayedToday = async () => {
+    const lastPlayedDate = await getDatePlayed();
+    const today = new Date().toDateString();
 
-  return ( 
+    setPlayedToday(lastPlayedDate === today);
+  };
+
+  const saveDatePlayed = async (date) => {
+    console.log('saving date')
+    let today 
+    if(date){
+      today = date
+    } else {
+      today = new Date().toDateString();
+    } 
+    
+    try {
+      await AsyncStorage.setItem('playedToday', today);
+      checkIfPlayedToday()
+    } catch (error) {
+      console.error('Error saving date:', error);
+    }
+  };
+
+  // saveDatePlayed('Mon Nov 10 2024')
+
+  const getDatePlayed = async () => {
+    try {
+      const storedDate = await AsyncStorage.getItem('playedToday');
+      return storedDate;
+    } catch (error) {
+      console.error('Error retrieving date:', error);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchOptions();
+    checkIfPlayedToday();
+  }, [playedToday]);
+
+  return (
     <SafeAreaView style={styles.container}>
-      {startGame ?
-        <GamePage prompts={prompts} setStartGame={setStartGame}/>
-        :
-      <View style={styles.pageContainer}>
-        <View style={{height: 800}}>
-          <LandingAnimation categoryName={categoryName} setStartGame={setStartGame}/>
+      {playedToday && <UserPrompt />}
+      {startGame ? (
+        <GamePage prompts={prompts} setStartGame={setStartGame} saveDatePlayed={saveDatePlayed}/>
+      ) : (
+        <View style={styles.pageContainer}>
+          <View style={{ height: 800 }}>
+            <LandingAnimation categoryName={categoryName} setStartGame={() => {
+              setStartGame(true);
+            }} />
+          </View>
         </View>
-      </View>}
+      )}
     </SafeAreaView>
   );
 }
@@ -70,15 +91,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pageContainer:{
+  pageContainer: {
     height: '40%',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  text :{
+  text: {
     fontSize: 20,
     fontFamily: 'Fredoka',
-    fontWeight: '500'
+    fontWeight: '500',
   },
   button: {
     fontSize: 16,
@@ -87,5 +108,5 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     elevation: 15,
-  }
+  },
 });

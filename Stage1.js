@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ScrollView } from 'react-native';
-import Selection from './Selection';
+import Selection from './Selection'; 
 
 const Stage1 = ({ onDeselection, canSelect, selectionLimit, setSelectionCount, onSelection, stageSelections, currentStage, selectionCount }) => { 
   return (

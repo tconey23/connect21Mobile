@@ -7,15 +7,18 @@ import Animated, {
   withSequence,
   withDelay,
 } from 'react-native-reanimated';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import HexButton from './HexButton';
+
+const { width, height } = Dimensions.get('window')
 
 const LandingAnimation = ({ setStartGame, categoryName }) => {
   const [purple] = useState('#c956ff');
   const [yellow] = useState('#fff200');
   const [green] = useState('#45d500');
   const [fontsLoaded, setFontsLoaded] = useState(true);
+  const [dateToday] = useState(new Date().toDateString())
 
   const SCALE_UP = 1.5;
   const TIME = 400;
@@ -108,9 +111,12 @@ const LandingAnimation = ({ setStartGame, categoryName }) => {
           </Animated.Text>
         ))}
       </View>
+      <View style={styles.categoryWrapper}>
         <Text style={styles.catText}>{categoryName}</Text>
+        <Text style={[styles.catText, {fontSize: 18}]}>{dateToday}</Text>
+      </View>
       <Animated.View style={animatedButton}>
-        <TouchableOpacity onPress={() => setStartGame(true)} style={styles.button}>
+        <TouchableOpacity onPress={() => setStartGame(true)} style={[styles.button, {backgroundColor: purple}]}>
           {fontsLoaded && <Text style={styles.buttonText}>PLAY!</Text>}
         </TouchableOpacity>
       </Animated.View>
@@ -134,7 +140,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 10,
-    marginTop: -0
+    marginTop: -50
   },
   titleContainer: {
     flexDirection: 'row',
@@ -151,7 +157,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   button: {
-    backgroundColor: '#BDFDFF',
     paddingHorizontal: 30,
     paddingVertical: 10,
     borderRadius: 5,
@@ -159,6 +164,18 @@ const styles = StyleSheet.create({
   },
   catText: {
     fontSize: 30,
-    marginTop: -50
+    width: "100%",
+    textAlign: 'center'
+  },
+  categoryWrapper:{
+    backgroundColor: 'lightgray',
+    height: height * 0.1,
+    width: width * 0.85,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'column',
+    elevation: 30,
+    borderRadius: 20,
+    marginTop: -80
   }
 });

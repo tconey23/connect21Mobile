@@ -11,7 +11,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-nati
 
 const { width, height } = Dimensions.get('window');
 
-const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSelection, selected: propSelected, index, currentStage, selectionCount, stageSelections, onDeselection }) => {
+const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSelection, selected: propSelected, index, currentStage, selectionCount, stageSelections, onDeselection, optColor }) => {
   const [selected, setSelected] = useState(propSelected);
   const [color, setColor] = useState(propSelected ? '#bd80ff' : '#d4d4d4');
   const [containerWidth, setContainerWidth] = useState(0);
@@ -20,6 +20,7 @@ const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSel
   const [yellow] = useState('#fff200');
   const [green] = useState('#45d500');
   const [fontSize, setFontSize] = useState(15);
+  const [overrideCanSelect, setOverrideCanSelect] = useState(false)
 
   const ANGLE = 2;
   const TIME = 80;
@@ -73,6 +74,10 @@ const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSel
 
   useEffect(() => {
     setColor(selected ? getStageColor(currentStage) : getStageColor(currentStage-1));
+    if(currentStage === 2){
+      console.log('selected', option, selected, overrideCanSelect)
+      setOverrideCanSelect(selected ? false : true)
+    }
   }, [selected, currentStage]);
 
   useEffect(() => {
@@ -89,7 +94,18 @@ const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSel
         setColor(getStageColor(2));
       }
     }
-  }, [currentStage, option, stageSelections]);
+  }, [currentStage, option, stageSelections, canSelect]);
+
+  const checkCanSelect = (opt) => {
+    let result
+
+    if(canSelect){
+      result = 1
+    } else {
+      result = 0.5
+    }
+    return result
+  }
 
   return (
     <Animated.View
@@ -104,13 +120,13 @@ const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSel
       <TouchableOpacity
         onPress={handleSelection}
         style={{
-          backgroundColor: color,
+          backgroundColor: optColor ? optColor: color,
           padding: 10,
           borderRadius: 10,
           alignItems: 'center',
           height: '100%',
           justifyContent: 'center',
-          opacity: canSelect ? 1 : 0.5,
+          opacity: checkCanSelect(option),
           elevation: 10,
         }}
       >

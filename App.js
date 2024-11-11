@@ -10,6 +10,9 @@ import HexButton from './HexButton'
 export default function App() {
 
   const [startGame, setStartGame] = useState(false)
+  const [categoryName, setCategoryName] = useState() 
+  const [prompts, setPrompts] = useState()
+
   // const [fontsLoaded, setFontsLoaded] = useState(true);
 
   
@@ -24,16 +27,36 @@ export default function App() {
   // useEffect(() => {
   //   loadFonts()
   // }, [])
+
+  const fetchOptions = async () => {
+    console.log('fetching')
+    try {
+      const res = await fetch('https://raw.githubusercontent.com/tconey23/connect21_be/refs/heads/main/ServerData/gptResp.json');
+      const data = await res.json();
+     
+      if (data) {
+        setPrompts(Object.values(data)[0]);
+        setCategoryName(Object.keys(data)[0])
+      }
+
+    } catch (error) {
+      // console.error('Error fetching options:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchOptions()
+  }, [])
   
 
   return ( 
     <SafeAreaView style={styles.container}>
       {startGame ?
-        <GamePage setStartGame={setStartGame}/>
+        <GamePage prompts={prompts} setStartGame={setStartGame}/>
         :
       <View style={styles.pageContainer}>
         <View style={{height: 800}}>
-          <LandingAnimation setStartGame={setStartGame}/>
+          <LandingAnimation categoryName={categoryName} setStartGame={setStartGame}/>
         </View>
       </View>}
     </SafeAreaView>

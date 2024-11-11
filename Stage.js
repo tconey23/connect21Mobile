@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, ScrollView } from 'react-native';
 import Selection from './Selection';
 
-const Stage = ({ currentStage, options, selectionCount, setSelectionCount, canSelect, setCanSelect, selectionLimit, stageSelections, onSelection }) => {
+const Stage = ({ currentStage, options, selectionCount, setSelectionCount, canSelect, setCanSelect, selectionLimit, onDeselection, onSelection }) => { 
   return (
     <ScrollView style={{ flex: 1 }}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', height: '75%' }}>
@@ -20,6 +20,7 @@ const Stage = ({ currentStage, options, selectionCount, setSelectionCount, canSe
                 index={i}
                 selectionCount={selectionCount}
                 onSelection={onSelection}
+                onDeselection={onDeselection}
               />
             );
           }

@@ -11,7 +11,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-nati
 
 const { width, height } = Dimensions.get('window');
 
-const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSelection, selected: propSelected, index, currentStage, selectionCount, stageSelections }) => {
+const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSelection, selected: propSelected, index, currentStage, selectionCount, stageSelections, onDeselection }) => {
   const [selected, setSelected] = useState(propSelected);
   const [color, setColor] = useState(propSelected ? '#bd80ff' : '#d4d4d4');
   const [containerWidth, setContainerWidth] = useState(0);
@@ -20,11 +20,6 @@ const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSel
   const [yellow] = useState('#fff200');
   const [green] = useState('#45d500');
   const [fontSize, setFontSize] = useState(15);
-
- 
-  useEffect(() => {
-
-  }, [option, containerWidth, containerHeight]);
 
   const ANGLE = 2;
   const TIME = 80;
@@ -55,6 +50,7 @@ const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSel
     if (selected) {
       setSelected(false);
       setSelectionCount((prev) => Math.max(prev - 1, 0));
+      onDeselection(option)
     } else if (canSelect && selectionCount < selectionLimit) {
       setSelected(true);
       setSelectionCount((prev) => Math.min(prev + 1, selectionLimit));
@@ -76,7 +72,7 @@ const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSel
   };
 
   useEffect(() => {
-    setColor(selected ? getStageColor(currentStage) : '#d4d4d4');
+    setColor(selected ? getStageColor(currentStage) : getStageColor(currentStage-1));
   }, [selected, currentStage]);
 
   useEffect(() => {

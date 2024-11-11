@@ -11,7 +11,7 @@ import Hexagon from './Hexagon';
 const fontSize = PixelRatio.getFontScale() * 25;
 const { width, height } = Dimensions.get('window')
 
-const GamePage = ({ setStartGame }) => {
+const GamePage = ({ setStartGame, prompts }) => {
   const [stageSelections, setStageSelections] = useState({ 0: [], 1: [], 2: [], 3: [] }); // Store selections for each stage
   const [options, setOptions] = useState([]);
   const [fontsLoaded, setFontsLoaded] = useState(true);
@@ -27,30 +27,16 @@ const GamePage = ({ setStartGame }) => {
 
   // const loadFonts = async () => {
   //   await Font.loadAsync({
-  //     'Roboto': require('./assets/fonts/Roboto_Mono/RobotoMono-VariableFont_wght.ttf'),
+  //     'Roboto': require('./assets/fonts/Roboto_Mono/Robohttps://raw.githubusercontent.com/tconey23/connect21_be/refs/heads/main/ServerData/gptResp.jsontoMono-VariableFont_wght.ttf'),
   //     'Fredoka': require('./assets/fonts/Fredoka/static/Fredoka-Regular.ttf'),
   //   });
   //   setFontsLoaded(true);
   // };
 
-  const fetchOptions = async () => {
-    try {
-      const res = await fetch('https://raw.githubusercontent.com/tconey23/connect21_be/refs/heads/main/ServerData/gptResp.json');
-      const data = await res.json();
-      const final = JSON.parse(data.choices[0].message.content);
-
-      if (final) {
-        setOptions(final);
-      }
-    } catch (error) {
-      console.error('Error fetching options:', error);
-    }
-  };
-
   useEffect(() => {
     // loadFonts();
     setSelectionCount(0);
-    fetchOptions();
+    setOptions(prompts)
   }, []);
 
   useEffect(() => {
@@ -110,7 +96,7 @@ const GamePage = ({ setStartGame }) => {
   }, [selectionLimit, selectionCount])
 
   const handleSelection = (selectedOption) => {
-    console.log(selectedOption)
+
     setStageSelections((prev) => {
       const updatedSelections = { ...prev };
       updatedSelections[currentStage] = [
@@ -119,6 +105,16 @@ const GamePage = ({ setStartGame }) => {
       ];
       return updatedSelections;
     });
+  };
+
+  const handleDeselection = (selectedOption) => { 
+    let foundOpt = stageSelections[currentStage].findIndex((opt) => opt === selectedOption)
+    let optArray = stageSelections[currentStage]
+    optArray.splice(foundOpt,1)
+    setStageSelections(prev => ({
+      ...prev,
+      currentStage: optArray
+    }));
   };
 
   const renderCurrentStage = () => {
@@ -131,6 +127,7 @@ const GamePage = ({ setStartGame }) => {
             selectionLimit={selectionLimit}
             setSelectionCount={setSelectionCount}
             onSelection={handleSelection}
+            onDeselection={handleDeselection}
             currentStage={currentStage}
             stageSelections={stageSelections}
             selectionCount={selectionCount}
@@ -144,6 +141,7 @@ const GamePage = ({ setStartGame }) => {
           selectionLimit={selectionLimit}
           setSelectionCount={setSelectionCount}
           onSelection={handleSelection}
+          onDeselection={handleDeselection}
           currentStage={currentStage}
           stageSelections={stageSelections}
           selectionCount={selectionCount}
@@ -157,6 +155,7 @@ const GamePage = ({ setStartGame }) => {
           selectionLimit={selectionLimit}
           setSelectionCount={setSelectionCount}
           onSelection={handleSelection}
+          onDeselection={handleDeselection}
           currentStage={currentStage}
           stageSelections={stageSelections}
           selectionCount={selectionCount}
@@ -187,7 +186,9 @@ const GamePage = ({ setStartGame }) => {
 
   return (
     <View style={styles.container}>
-      {currentStage < 3 && <Text style={styles.headerText}>Select {selectionLimit} that boost{selectionLimit === 1 && 's'} your mood!</Text>}
+      {currentStage === 0 && <Text style={styles.headerText}>Select the 6 that most boost your mood!</Text>}
+      {currentStage === 1 && <Text style={styles.headerText}>Choose your Trifecta!</Text>}
+      {currentStage === 2 && <Text style={styles.headerText}>And your mood-boostiest?!</Text>}
       {currentStage < 3 && <View style={{flexDirection: 'row-reverse'}}>{hexagons}</View>}
       {fontsLoaded && renderCurrentStage()}
       <View style={styles.buttonContainer}>

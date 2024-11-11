@@ -10,40 +10,27 @@ import Animated, {
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import HexButton from './HexButton';
-// import * as Font from 'expo-font';
 
-const LandingAnimation = ({ setStartGame }) => {
+const LandingAnimation = ({ setStartGame, categoryName }) => {
   const [purple] = useState('#c956ff');
   const [yellow] = useState('#fff200');
   const [green] = useState('#45d500');
   const [fontsLoaded, setFontsLoaded] = useState(true);
 
-  // const loadFonts = async () => {
-  //   await Font.loadAsync({
-  //     'Roboto': require('./assets/fonts/Roboto_Mono/RobotoMono-VariableFont_wght.ttf'),
-  //     'Fredoka': require('./assets/fonts/Fredoka/static/Fredoka-Regular.ttf'),
-  //   });
-  //   setFontsLoaded(true);
-  // };
-
-  // useEffect(() => {
-  //   loadFonts();
-  // }, []);
-
-  const ANGLE = 360;
-  const TIME = 4000;
-  const EASING = Easing.elastic(0.01);
-  const HEXEASING = Easing.elastic(0.01)
+  const SCALE_UP = 1.5;
+  const TIME = 400;
+  const EASING = Easing.elastic(0.3);
   const textShadowColors = [purple, purple, purple, yellow, yellow, green];
+  const HEXEASING = Easing.elastic(0.01)
 
   const titleText = '21Things';
-  const rotationValues = titleText.split('').map(() => useSharedValue(0));
+  const scaleValues = titleText.split('').map(() => useSharedValue(1));
   const hexRotationValues = useSharedValue(0);
   const buttonWobble = useSharedValue(1);
 
-  const animatedText = (rotationValue) =>
+  const animatedText = (scaleValue) =>
     useAnimatedStyle(() => ({
-      transform: [{ rotateX: `${rotationValue.value}deg` }],
+      transform: [{ scale: scaleValue.value }],
     }));
 
   const animatedHex = useAnimatedStyle(() => ({
@@ -55,13 +42,13 @@ const LandingAnimation = ({ setStartGame }) => {
   }));
 
   useEffect(() => {
-    rotationValues.forEach((rotation, index) => {
-      rotation.value = withDelay(
-        index * 400,
+    scaleValues.forEach((scale, index) => {
+      scale.value = withDelay(
+        index * 200,
         withRepeat(
           withSequence(
-            withTiming(-ANGLE, { duration: TIME / 2, easing: EASING }),
-            withTiming(ANGLE, { duration: TIME / 2, easing: EASING })
+            withTiming(SCALE_UP, { duration: TIME, easing: EASING }),
+            withTiming(1, { duration: TIME, easing: EASING })
           ),
           1,
           true
@@ -83,21 +70,20 @@ const LandingAnimation = ({ setStartGame }) => {
         withTiming(hexAngle *3, { duration: hexTiming, easing: HEXEASING }),
 
       ),
-      -1, // Infinite repeat
-      true // Alternate direction
+      2, 
+      true 
     );
 
-    // Button pulsing animation
     buttonWobble.value = withRepeat(
       withSequence(
-        withTiming(-5, { duration: 100, easing: EASING }), // Move left
-        withTiming(5, { duration: 100, easing: EASING }),  // Move right
-        withTiming(-5, { duration: 100, easing: EASING }), // Move left
-        withTiming(0, { duration: 100, easing: EASING }),  // Move right
-        withDelay(1000, withTiming(0, { duration: 0 })) // Add a 500ms delay after the wobble
+        withTiming(-5, { duration: 100, easing: EASING }),
+        withTiming(5, { duration: 100, easing: EASING }),
+        withTiming(-5, { duration: 100, easing: EASING }),
+        withTiming(0, { duration: 100, easing: EASING }),
+        withDelay(1000, withTiming(0, { duration: 0 }))
       ),
-      -1, // Infinite repeat
-      true // Alternate direction
+      -1,
+      true
     );
   }, []);
 
@@ -112,7 +98,7 @@ const LandingAnimation = ({ setStartGame }) => {
             key={i}
             style={[
               styles.text,
-              animatedText(rotationValues[i]),
+              animatedText(scaleValues[i]),
               {
                 textShadowColor: isNaN(char) ? textShadowColors[i - 2] : 'black',
               },
@@ -122,6 +108,7 @@ const LandingAnimation = ({ setStartGame }) => {
           </Animated.Text>
         ))}
       </View>
+        <Text style={styles.catText}>{categoryName}</Text>
       <Animated.View style={animatedButton}>
         <TouchableOpacity onPress={() => setStartGame(true)} style={styles.button}>
           {fontsLoaded && <Text style={styles.buttonText}>PLAY!</Text>}
@@ -147,6 +134,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 10,
+    marginTop: -0
   },
   titleContainer: {
     flexDirection: 'row',
@@ -169,4 +157,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     elevation: 15,
   },
+  catText: {
+    fontSize: 30,
+    marginTop: -50
+  }
 });

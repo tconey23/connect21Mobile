@@ -16,38 +16,33 @@ const Stage3 = ({ setStartGame, canSelect, selectionLimit, setSelectionCount, on
       console.warn('View reference is not set');
       return;
     } else {
-      console.log(viewRef.current)
+      // console.log(viewRef.current)
     }
     try {
-      // Capture the screenshot
       const uri = await captureRef(viewRef.current, {
         format: 'png',
         quality: 0.8,
       });
-  
-      // Save the screenshot to the device's file system
       const filePath = `${RNFS.DocumentDirectoryPath}/${Date.now()}_screenshot.png`;
       await RNFS.copyFile(uri, filePath);
-  
-      // Share the file using react-native-share
+
       await Share.open({
         title: 'Share screenshot',
         url: `file://${filePath}`,
         failOnCancel: false,
       });
   
-      // Delete the temporary screenshot file from the file system
       await RNFS.unlink(filePath);
-  
-      // Optional: reset or close the game screen after sharing
-      // setStartGame(false);
     } catch (error) {
       console.error('Error taking screenshot and sharing:', error);
     }
   };
-
+ 
   return (
     <View style={styles.container}>
+        {/* <TouchableOpacity style={[styles.button, {width: 20, height: 30, borderRadius: 30, marginTop: 20, alignSelf: "flex-end", backgroundColor: 'white', elevation: 20, borderColor: 'black', borderWidth: 1}]} onPress={() => setStartGame(false)}>
+          <Text style={styles.buttonText}>X</Text>
+        </TouchableOpacity> */}
         <ScrollView ref={viewRef} style={styles.screenshot}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', height: '75%' }}>
             {stageSelections && stageSelections[0] && stageSelections[0].map((opt, i) => (
@@ -78,9 +73,6 @@ const Stage3 = ({ setStartGame, canSelect, selectionLimit, setSelectionCount, on
         <TouchableOpacity style={styles.button} onPress={takeScreenshotAndShare}>
           <Text style={styles.buttonText}>SHARE</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => setStartGame(false)}>
-          <Text style={styles.buttonText}>DONE</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -95,7 +87,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     width: width,
-    paddingVertical: 0,
+    paddingVertical: 10,
   },
   screenshot: {
     height: height * .80,
@@ -130,8 +122,9 @@ const styles = StyleSheet.create({
     elevation: 10,
     width: width,
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: height * 0.07,
     marginBottom: -10,
+    color: 'black'
   },
   buttonText: {
     color:  'black',

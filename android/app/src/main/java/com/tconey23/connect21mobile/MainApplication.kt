@@ -1,4 +1,4 @@
-package com.connect21mobile
+package com.tconey23.connect21Mobile
 
 import android.app.Application
 import com.facebook.react.PackageList

@@ -1,4 +1,4 @@
-package com.connect21mobile
+package com.tconey23.connect21Mobile
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

@@ -75,7 +75,7 @@ const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSel
   useEffect(() => {
     setColor(selected ? getStageColor(currentStage) : getStageColor(currentStage-1));
     if(currentStage === 2){
-      console.log('selected', option, selected, overrideCanSelect)
+      //console.log('selected', option, selected, overrideCanSelect)
       setOverrideCanSelect(selected ? false : true)
     }
   }, [selected, currentStage]);

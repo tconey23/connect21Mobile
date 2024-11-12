@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { View, ScrollView,Text, TextInput, StyleSheet, Dimensions, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
@@ -10,6 +10,7 @@ const { width, height } = Dimensions.get('window');
 
 const Stage3 = ({ saveDatePlayed, canSelect, selectionLimit, setSelectionCount, onSelection, stageSelections, currentStage, selectionCount }) => {
   const viewRef = useRef(null);
+  const [purple] = useState('#c956ff')
 
   const takeScreenshotAndShare = async () => {
     if (!viewRef.current) {
@@ -38,15 +39,24 @@ const Stage3 = ({ saveDatePlayed, canSelect, selectionLimit, setSelectionCount, 
       console.error('Error taking screenshot and sharing:', error);
     }
   };
+
+  const handleInputFocus = () => {
+    if(viewRef.current){
+      viewRef.current.scrollToEnd({ animated: true });
+    }
+  }
+
+  useEffect(() => {
+    handleInputFocus()
+  }, [])
  
   return (
+    <View style={{height: height, width: width}}>
     <KeyboardAvoidingView
-    style={styles.container}
-    behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // iOS uses 'padding', Android 'height' or 'padding'
-    keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0} // Adjust as needed
-  >
-
-    <View style={styles.container}>
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 30 : 0}
+      >
         <ScrollView ref={viewRef} style={styles.screenshot}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', height: '75%' }}>
             {stageSelections && stageSelections[0] && stageSelections[0].map((opt, i) => (
@@ -69,18 +79,19 @@ const Stage3 = ({ saveDatePlayed, canSelect, selectionLimit, setSelectionCount, 
             multiline
             placeholder={`Write something about '${stageSelections[2]}'`}
             autoFocus={true}
+            onFocus={() => handleInputFocus()}
+            onBlur={() => handleInputFocus()}
             style={{ maxWidth: '85%', color: 'black'}}
-            
             />
       </View>
         </ScrollView>
+  </KeyboardAvoidingView>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={takeScreenshotAndShare}>
+        <TouchableOpacity style={[styles.button, {backgroundColor: purple}]} onPress={takeScreenshotAndShare}>
           <Text style={styles.buttonText}>SHARE</Text>
         </TouchableOpacity>
       </View>
-    </View>
-  </KeyboardAvoidingView>
+  </View>
   );
 };
 
@@ -96,11 +107,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   screenshot: {
-    height: height * .80,
+    height: '100%',
     width: width,
   },
   button: {
-    backgroundColor: 'lightblue',
     borderRadius: 5,
     marginHorizontal: 10,
     width: 100,
@@ -108,6 +118,7 @@ const styles = StyleSheet.create({
     color: 'black',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 60
   },
   buttonContainer: {
     flex:1,
@@ -115,7 +126,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: width,
     marginTop: 20,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    marginBottom: 100
   },
   textInput: {
     height: 100,
@@ -129,7 +141,7 @@ const styles = StyleSheet.create({
     width: width,
     alignItems: 'center',
     marginTop: height * 0.07,
-    marginBottom: -10,
+    marginBottom: -50,
     color: 'black'
   },
   buttonText: {

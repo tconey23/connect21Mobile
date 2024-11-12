@@ -186,7 +186,7 @@ const GamePage = ({ setStartGame, prompts, saveDatePlayed }) => {
   }
 
   useEffect(() => {
-    console.log(options)
+    // console.log(options)
   }, [prompts])
 
   return (

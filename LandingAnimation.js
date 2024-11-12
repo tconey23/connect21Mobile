@@ -19,6 +19,7 @@ const LandingAnimation = ({ setStartGame, categoryName }) => {
   const [green] = useState('#45d500');
   const [fontsLoaded, setFontsLoaded] = useState(true);
   const [dateToday] = useState(new Date().toDateString())
+  const [rotation, setRotation] = useState(1)
 
   const SCALE_UP = 1.5;
   const TIME = 400;
@@ -66,14 +67,14 @@ const LandingAnimation = ({ setStartGame, categoryName }) => {
       withSequence(
         withTiming(0, { duration: hexTiming, easing: HEXEASING }),
         withTiming(hexAngle *2, { duration: hexTiming, easing: HEXEASING }),
-        withTiming(hexAngle *10, { duration: hexTiming, easing: HEXEASING }),
-        withTiming(hexAngle *4, { duration: hexTiming, easing: HEXEASING }),
-        withTiming(hexAngle *5, { duration: hexTiming, easing: HEXEASING }),
-        withTiming(hexAngle, { duration: hexTiming, easing: HEXEASING }), 
-        withTiming(hexAngle *3, { duration: hexTiming, easing: HEXEASING }),
+        // withTiming(hexAngle *10, { duration: hexTiming, easing: HEXEASING }),
+        // withTiming(hexAngle *4, { duration: hexTiming, easing: HEXEASING }),
+        // withTiming(hexAngle *5, { duration: hexTiming, easing: HEXEASING }),
+        // withTiming(hexAngle, { duration: hexTiming, easing: HEXEASING }), 
+        // withTiming(hexAngle *3, { duration: hexTiming, easing: HEXEASING }),
 
       ),
-      2, 
+      1, 
       true 
     );
 
@@ -90,10 +91,27 @@ const LandingAnimation = ({ setStartGame, categoryName }) => {
     );
   }, []);
 
+  const hexTap = () => {
+    console.log('hextap')
+    let hexAngle = 720 * rotation
+    let hexTiming = 2000
+
+    hexRotationValues.value = withRepeat(
+      withSequence(
+        withTiming(hexAngle *2, { duration: hexTiming, easing: HEXEASING }),
+      ),
+      2, 
+      true 
+    );
+    setRotation(prev => prev +4)
+  }
+
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.hexContainer, animatedHex]}>
-        <HexButton size={200} />
+        <TouchableOpacity onPress={() => hexTap()} >
+          <HexButton size={200} />
+        </TouchableOpacity>
       </Animated.View>
       <View style={styles.titleContainer}>
         {titleText.split('').map((char, i) => (
@@ -150,6 +168,8 @@ const styles = StyleSheet.create({
     height: 200,
     marginTop: 0,
     marginBottom: 50,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   buttonText: {
     fontSize: 20,

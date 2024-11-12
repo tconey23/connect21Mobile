@@ -222,11 +222,13 @@ export default GamePage;
 
 const styles = StyleSheet.create({
   container: {
-    height: height * .90,
+    height: '98%',
     width: width,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'flex-start',
+    flexDirection: 'column',
+    paddingVertical: 15
   },
   headerText: {
     fontSize: 20,

@@ -147,9 +147,9 @@ export default LandingAnimation;
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
-    flex: 1,
     justifyContent: 'space-evenly',
     alignItems: 'center',
+    flex:1
   },
   text: {
     fontSize: 50,
@@ -188,13 +188,12 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   categoryWrapper:{
-    backgroundColor: 'lightgray',
+    backgroundColor: 'white',
     height: height * 0.1,
     width: width * 0.85,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
-    elevation: 30,
     borderRadius: 20,
     marginTop: -80
   }

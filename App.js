@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SafeAreaView, Platform } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, SafeAreaView, Platform, Dimensions, KeyboardAvoidingView} from 'react-native';
 import { useState, useEffect } from 'react';
 import GamePage from './GamePage';
 import UserPrompt from './UserPrompt';
@@ -7,6 +7,21 @@ import LandingAnimation from './LandingAnimation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BetaAlert from './BetaAlert'
 import HelpPage from './HelpPage'
+import Svg, { G, Path, Defs, ClipPath } from "react-native-svg"
+import { red } from 'react-native-reanimated/lib/typescript/Colors';
+import { render } from 'react-dom';
+
+const HelpIcon = ({size, setToggleHelp}) => {
+  return (
+    <TouchableOpacity onPress={() => setToggleHelp('help')} >
+      <Svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width={`${size}px`} height={`${size}px`}>
+        <Path fill={'#c956ff'} d="M12,0A12,12,0,1,0,24,12,12.013,12.013,0,0,0,12,0Zm0,20a1,1,0,1,1,1-1A1,1,0,0,1,12,20Zm1.93-7.494A1.982,1.982,0,0,0,13,14.257V15a1,1,0,0,1-2,0v-.743a3.954,3.954,0,0,1,1.964-3.5,2,2,0,0,0,1-2.125,2.024,2.024,0,0,0-1.6-1.595A2,2,0,0,0,10,9,1,1,0,0,1,8,9a4,4,0,1,1,5.93,3.505Z"/>
+      </Svg>
+    </TouchableOpacity>
+  )
+}
+
+const { width, height } = Dimensions.get('window');
 
 export default function App() {
   const [startGame, setStartGame] = useState(false);
@@ -14,7 +29,8 @@ export default function App() {
   const [prompts, setPrompts] = useState();
   const [playedToday, setPlayedToday] = useState(false);
   const [betaReset, setBetaReset] = useState(false)
-  const [toggleHelp, setToggleHelp] = useState(false)
+  const [display, setDisplay] = useState('landing')
+  const [currentPage, setCurrentPage] = useState('landing')
 
   const fetchOptions = async () => {
     try {
@@ -37,7 +53,6 @@ export default function App() {
   };
 
   const saveDatePlayed = async (date) => {
-    // console.log('saving date')
     let today 
     if(date){
       today = date
@@ -69,6 +84,7 @@ export default function App() {
     }
   };
 
+
   const getDatePlayed = async () => {
     try {
       const storedDate = await AsyncStorage.getItem('playedToday');
@@ -80,48 +96,71 @@ export default function App() {
 
 
   useEffect(() => {
-    fetchOptions();
-    checkIfPlayedToday();
+    fetchOptions()
+    checkIfPlayedToday()
+    playedToday && setDisplay('played')
   }, [playedToday]);
 
   useEffect(() => {
+    startGame ? setDisplay('game') : setDisplay('landing')
+  }, [startGame])
+
+  useEffect(() => {
     if(betaReset) {
-      console.log(betaReset)
       resetGame()
     }
   }, [betaReset])
 
+  const renderCurrentStage = () => {
+    switch (display) {
+      case ('landing'):
+      return (
+        <LandingAnimation categoryName={categoryName} setStartGame={() => {
+          setStartGame(true);
+        }} />
+      );
+      case ('game'):
+        return (
+          <GamePage prompts={prompts} setStartGame={setStartGame} saveDatePlayed={saveDatePlayed}/>
+        );
+      case ('help'):
+        return (
+          <HelpPage setToggleHelp={setDisplay} toggleHelp={display}/>
+        );
+      case ('played'):
+        return (
+          <UserPrompt setStartGame={setStartGame} playedToday={playedToday} setBetaReset={setBetaReset}/>
+        );
+    }
+
+  }
+
   return (
-    <SafeAreaView style={styles.container}>
-      <BetaAlert setToggleHelp={setToggleHelp}/>
-      <HelpPage setToggleHelp={setToggleHelp} toggleHelp={toggleHelp}/>
+    <View style={{flex:1}}>
+      <BetaAlert setToggleHelp={setDisplay}/>
+    <KeyboardAvoidingView
+      style={{height: '100%',justifyContent: 'flex-start'}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+      >
+    <SafeAreaView style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'column'}}>
       {playedToday && <UserPrompt setStartGame={setStartGame} playedToday={playedToday} setBetaReset={setBetaReset}/>}
-      {startGame ? (
-        <GamePage prompts={prompts} setStartGame={setStartGame} saveDatePlayed={saveDatePlayed}/>
-      ) : (
-        <View style={styles.pageContainer}>
-          <View style={{ height: 800 }}>
-            <LandingAnimation categoryName={categoryName} setStartGame={() => {
-              setStartGame(true);
-            }} />
-          </View>
-        </View>
-      )}
+      <View style={{elevation: 20, width: width, height: '7%', alignItems: 'flex-end', padding: 10, marginBottom: -23}}>
+        <HelpIcon setToggleHelp={setDisplay} size={20}/>
+      </View>
+      {renderCurrentStage()}
     </SafeAreaView>
+</KeyboardAvoidingView>
+</View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    height: '95%',
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   pageContainer: {
-    height: '40%',
+    height: '93%',
     alignItems: 'center',
     justifyContent: 'center',
+    width: width
   },
   text: {
     fontSize: 20,

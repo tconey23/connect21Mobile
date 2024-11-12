@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Text, View, Modal, StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native'
+import { Text, View, Modal, StyleSheet, Dimensions, ScrollView, TouchableOpacity, Platform, Pressable } from 'react-native'
 import Svg, { G, Path, Defs, ClipPath } from "react-native-svg"
 
 const { width, height } = Dimensions.get('window');
@@ -15,34 +15,29 @@ const RefreshSvg = ({size}) =>{
     )
 }
 
-const HelpPage = ({toggleHelp, setToggleHelp}) => {
-
+const HelpPage = ({setToggleHelp, toggleHelp}) => {
     const [modalVisible, setModalVisible] = useState(false)
     const [purple] = useState('#c956ff')
 
     useEffect(() => {
-        if(toggleHelp){
-            setModalVisible(true)
-        } else {
-            setModalVisible(false)
-        }
-    }, [toggleHelp])
+        toggleHelp === 'help' ? setModalVisible(true) : setModalVisible(false)
+    }, [])
 
     return (
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.pageContainer}>
-            <View style={styles.header}>
-                <Text style={styles.headerText}>21Things Beta</Text>
-                <Text style={styles.headerText}>Help</Text>
-            </View>
-            <ScrollView style={{height: '80%'}}> 
-                <View style={styles.descriptionContainer}>
-                    <Text style={styles.descriptionText}>
+<Modal
+    animationType="slide"
+    transparent={Platform.OS === 'ios'}
+    visible={modalVisible}
+    onRequestClose={() => setModalVisible(false)}
+>
+    <View style={[styles.pageContainer, { backgroundColor: Platform.OS === 'android' ? 'white' : 'transparent' }]}>
+        <View style={styles.header}>
+            <Text style={styles.headerText}>21Things Beta</Text>
+            <Text style={styles.headerText}>Help</Text>
+        </View>
+        <ScrollView contentContainerStyle={{ paddingBottom: 20 }} style={{ flex: 1 }}>
+            <View style={styles.descriptionContainer}>
+            <Text style={styles.descriptionText}>
                         21Things is a mood-boosting mobile app that 
                         guides users through a fun and reflective 
                         experience. 
@@ -91,43 +86,72 @@ const HelpPage = ({toggleHelp, setToggleHelp}) => {
                     <Text style={styles.descriptionText}>
                        Thank you again for your time and effort! We truly appreciate it.
                     </Text>
-                    <TouchableOpacity 
-                        onPress={() => setToggleHelp(false)}
-                        style={{alignSelf: 'center', backgroundColor: purple, width: 100, paddingHorizontal: 5, borderRadius: 10}}
-                    >
-                        <Text style={styles.descriptionText}>
-                            LET'S BEGIN!
-                        </Text>
-                    </TouchableOpacity>
+                <View style={{ paddingVertical: 20, zIndex: 1 }}>
+                    {Platform.OS === 'ios' ? 
+                        <TouchableOpacity 
+                            onPress={() => setToggleHelp('landing')}
+                            style={{
+                                alignSelf: 'center',
+                                backgroundColor: purple,
+                                width: 100,
+                                paddingVertical: 10,
+                                paddingHorizontal: 5,
+                                borderRadius: 10,
+                            }}
+                        >
+                            <Text style={{ textAlign: 'center', color: 'white' }}>
+                                LET'S BEGIN!
+                            </Text>
+                        </TouchableOpacity>
+                    :
+                        <Pressable
+                            onPress={() => setToggleHelp('landing')}
+                            style={{
+                                alignSelf: 'center',
+                                backgroundColor: purple,
+                                width: 100,
+                                paddingVertical: 10,
+                                paddingHorizontal: 5,
+                                borderRadius: 10,
+                                elevation: 20
+                            }}
+                        >
+                            <Text style={{ textAlign: 'center', color: 'white' }}>
+                                LET'S BEGIN!
+                            </Text>
+                        </Pressable>
+                    }
                 </View>
-            </ScrollView>
-        </View>
-      </Modal>
+            </View>
+        </ScrollView>
+    </View>
+</Modal>
     )
 }
 
 export default HelpPage
 
 const styles = StyleSheet.create({
-    pageContainer:{
-        width: width
+    pageContainer: {
+        width: width,
+        height: height,
     },
     headerText: {
-        justifyContent: 'center',
-        alignItems: 'center',
+        textAlign: 'center',
         fontSize: 30,
-        fontFamily: 'Fredoka'
+        fontFamily: 'Fredoka',
     },
-    header:{
+    header: {
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 30
+        paddingVertical: 30,
     },
-    descriptionText:{
-        paddingVertical: 10
+    descriptionText: {
+        paddingVertical: 10,
+        textAlign: 'center',
     },
-    descriptionContainer:{
-        padding: 20
+    descriptionContainer: {
+        padding: 20,
     }
-})
+});
 

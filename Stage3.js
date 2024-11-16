@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, ScrollView,Text, TextInput, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, ScrollView,Text, TextInput, StyleSheet, Dimensions, TouchableOpacity, ProgressBarAndroidBase } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
@@ -10,7 +10,9 @@ const { width, height } = Dimensions.get('window');
 
 const Stage3 = ({ saveDatePlayed, canSelect, selectionLimit, setSelectionCount, onSelection, stageSelections, currentStage, selectionCount }) => {
   const viewRef = useRef(null);
+  const textRef = useRef()
   const [purple] = useState('#c956ff')
+  const [textLength, setTextLength] = useState(0)
   const [scroll, setScroll] = useState()
 
   const takeScreenshotAndShare = async () => {
@@ -53,6 +55,11 @@ const Stage3 = ({ saveDatePlayed, canSelect, selectionLimit, setSelectionCount, 
     }
   }
 
+  const handleTextLength = (text) => {
+    setTextLength(text.length)
+  }
+
+
  
   return (
     <View style={{height: '95%', width: width, flexDirection: 'column', justifyContent: 'flex-start'}}>
@@ -73,6 +80,10 @@ const Stage3 = ({ saveDatePlayed, canSelect, selectionLimit, setSelectionCount, 
               />
             ))}
           </View>
+          <View style={{width: '100%', marginTop: -40}}>
+            <Text style={{backgroundColor: 'green', width: (width * textLength) / 180}}></Text>
+            <Text style={{marginTop: 0, textAlign: 'center'}}>{`${textLength}/180`}</Text>
+          </View>
         <View style={styles.textInput}>
           <TextInput
             multiline
@@ -80,7 +91,9 @@ const Stage3 = ({ saveDatePlayed, canSelect, selectionLimit, setSelectionCount, 
             autoFocus={false}
             onFocus={() => handleInputFocus()}
             onBlur={() => handleInputBlur()}
-            style={{ maxWidth: '85%', color: 'black'}}
+            style={{ maxWidth: '85%', color: 'black', height: 'auto'}}
+            maxLength={180}
+            onChangeText={(text) => handleTextLength(text)}
             />
       </View>
       <View style={styles.buttonContainer}>

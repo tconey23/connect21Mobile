@@ -30,7 +30,7 @@ const HelpPage = ({setToggleHelp, toggleHelp}) => {
     visible={modalVisible}
     onRequestClose={() => setModalVisible(false)}
 >
-    <View style={[styles.pageContainer, { backgroundColor: Platform.OS === 'android' ? 'white' : 'transparent' }]}>
+    <View style={[styles.pageContainer, { backgroundColor: Platform.OS === 'android' ? 'white' : 'white' }]}>
         <View style={styles.header}>
             <Text style={styles.headerText}>21Things Beta</Text>
             <Text style={styles.headerText}>Help</Text>
@@ -43,8 +43,8 @@ const HelpPage = ({setToggleHelp, toggleHelp}) => {
                         experience. 
                     </Text>
                     <Text style={styles.descriptionText}>
-                        Starting with 21 prompts related to a specific category, 
-                        users select 6 that resonate with them most. 
+                        Starting with 21 prompts, users select 6 that 
+                        resonate with them the most. 
                         They then narrow down their choices to a top 3, 
                         ultimately choosing a single favorite.
                     </Text>

@@ -149,7 +149,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    flex:1
+    backgroundColor: 'white',
+    marginTop: 10,
+    flex: 1
   },
   text: {
     fontSize: 50,
@@ -158,10 +160,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 10,
-    marginTop: -50
+    marginTop: -50,
   },
   titleContainer: {
     flexDirection: 'row',
+    paddingVertical: 30
   },
   hexContainer: {
     width: 200,

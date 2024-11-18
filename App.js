@@ -30,14 +30,19 @@ export default function App() {
   const [playedToday, setPlayedToday] = useState(false);
   const [betaReset, setBetaReset] = useState(false)
   const [display, setDisplay] = useState('landing')
-  const [currentPage, setCurrentPage] = useState('landing')
 
   const fetchOptions = async () => {
     try {
       const res = await fetch('https://raw.githubusercontent.com/tconey23/connect21_be/refs/heads/main/ServerData/gptResp.json');
       const data = await res.json();
       if (data) {
-        setPrompts(Object.values(data)[0]);
+        setPrompts(Object.values(data)[0].map((opt) => ({
+          title: opt,
+          stage: null,
+          color: '#d4d4d4',
+          canSelect: true,
+          selected: false
+        })))
         setCategoryName(Object.keys(data)[0]);
       }
     } catch (error) {
@@ -69,7 +74,6 @@ export default function App() {
   };
 
   const resetGame = async () => {
-    console.log('resetting')
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1); // Set the date to yesterday
     const formattedYesterday = yesterday.toDateString(); // Format it as a string
@@ -102,7 +106,12 @@ export default function App() {
   }, [playedToday]);
 
   useEffect(() => {
-    startGame ? setDisplay('game') : setDisplay('landing')
+    if(startGame){
+      setDisplay('game')
+    } else {
+      setDisplay('landing')
+      fetchOptions()
+    }
   }, [startGame])
 
   useEffect(() => {
@@ -121,7 +130,7 @@ export default function App() {
       );
       case ('game'):
         return (
-          <GamePage prompts={prompts} setStartGame={setStartGame} saveDatePlayed={saveDatePlayed}/>
+          <GamePage setPrompts={setPrompts} prompts={prompts} setStartGame={setStartGame} saveDatePlayed={saveDatePlayed}/>
         );
       case ('help'):
         return (

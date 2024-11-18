@@ -8,7 +8,7 @@ import Selection from './Selection';
 
 const { width, height } = Dimensions.get('window');
 
-const Stage3 = ({ saveDatePlayed, canSelect, selectionLimit, setSelectionCount, onSelection, stageSelections, currentStage, selectionCount }) => {
+const Stage3 = ({ setPrompts, saveDatePlayed, canSelect, selectionLimit, setSelectionCount, onSelection, stageSelections, currentStage, selectionCount }) => {
   const viewRef = useRef(null);
   const textRef = useRef()
   const [purple] = useState('#c956ff')
@@ -77,6 +77,7 @@ const Stage3 = ({ saveDatePlayed, canSelect, selectionLimit, setSelectionCount, 
               selectionCount={selectionCount}
               stageSelections={stageSelections}
               currentStage={currentStage}
+              setPrompts={setPrompts}
               />
             ))}
           </View>

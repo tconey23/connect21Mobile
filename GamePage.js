@@ -11,7 +11,7 @@ import Hexagon from './Hexagon';
 const fontSize = PixelRatio.getFontScale() * 25;
 const { width, height } = Dimensions.get('window')
 
-const GamePage = ({ setStartGame, prompts, saveDatePlayed }) => {
+const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
   const [stageSelections, setStageSelections] = useState({ 0: [], 1: [], 2: [], 3: [] }); // Store selections for each stage
   const [options, setOptions] = useState([]);
   const [fontsLoaded, setFontsLoaded] = useState(true);
@@ -122,51 +122,50 @@ const GamePage = ({ setStartGame, prompts, saveDatePlayed }) => {
       case 0:
         return (
           <Stage
-            options={options}
+            options={prompts}
             canSelect={canSelect}
-            selectionLimit={selectionLimit}
             setSelectionCount={setSelectionCount}
             onSelection={handleSelection}
             onDeselection={handleDeselection}
             currentStage={currentStage}
             stageSelections={stageSelections}
             selectionCount={selectionCount}
+            setPrompts={setPrompts}
           />
         );
       case 1:
         return (
           <Stage1
-          options={options}
+          options={prompts}
           canSelect={canSelect}
-          selectionLimit={selectionLimit}
           setSelectionCount={setSelectionCount}
           onSelection={handleSelection}
           onDeselection={handleDeselection}
           currentStage={currentStage}
           stageSelections={stageSelections}
           selectionCount={selectionCount}
+          setPrompts={setPrompts}
           />
         );
       case 2:
         return (
           <Stage2
-          options={options}
+          options={prompts}
           canSelect={canSelect}
-          selectionLimit={selectionLimit}
           setSelectionCount={setSelectionCount}
           onSelection={handleSelection}
           onDeselection={handleDeselection}
           currentStage={currentStage}
           stageSelections={stageSelections}
           selectionCount={selectionCount}
+          setPrompts={setPrompts}
           />
         );
       case 3:
         return (
           <Stage3
-          options={options}
+          options={prompts}
           canSelect={canSelect}
-          selectionLimit={selectionLimit}
           setSelectionCount={setSelectionCount}
           onSelection={handleSelection}
           currentStage={currentStage}
@@ -174,6 +173,7 @@ const GamePage = ({ setStartGame, prompts, saveDatePlayed }) => {
           selectionCount={selectionCount}
           setStartGame={setStartGame}
           saveDatePlayed={saveDatePlayed}
+          setPrompts={setPrompts}
           />
         );
       default:
@@ -186,7 +186,7 @@ const GamePage = ({ setStartGame, prompts, saveDatePlayed }) => {
   }
 
   useEffect(() => {
-    // console.log(options)
+    // console.log(prompts)
   }, [prompts])
 
   return (

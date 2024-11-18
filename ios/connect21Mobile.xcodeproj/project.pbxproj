@@ -14,7 +14,7 @@
 		6DD15032E8955A805A9F33F3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		7699B88040F8A987B510C191 /* libPods-connect21Mobile-connect21MobileTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-connect21Mobile-connect21MobileTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		D84DF1FB2CE2F3BA0080FF10 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D84DF1FA2CE2F3BA0080FF10 /* Assets.xcassets */; };
+		D85C57032CEA979E00772B30 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D85C57022CEA979E00772B30 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,7 +44,7 @@
 		5DCACB8F33CDC322A6C60F78 /* libPods-connect21Mobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-connect21Mobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = connect21Mobile/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-connect21Mobile-connect21MobileTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-connect21Mobile-connect21MobileTests.release.xcconfig"; path = "Target Support Files/Pods-connect21Mobile-connect21MobileTests/Pods-connect21Mobile-connect21MobileTests.release.xcconfig"; sourceTree = "<group>"; };
-		D84DF1FA2CE2F3BA0080FF10 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../../Downloads/Assets.xcassets; sourceTree = "<group>"; };
+		D85C57022CEA979E00772B30 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../../Downloads/Assets.xcassets; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -88,7 +88,7 @@
 		13B07FAE1A68108700A75B9A /* connect21Mobile */ = {
 			isa = PBXGroup;
 			children = (
-				D84DF1FA2CE2F3BA0080FF10 /* Assets.xcassets */,
+				D85C57022CEA979E00772B30 /* Assets.xcassets */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
@@ -245,7 +245,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
-				D84DF1FB2CE2F3BA0080FF10 /* Assets.xcassets in Resources */,
+				D85C57032CEA979E00772B30 /* Assets.xcassets in Resources */,
 				6DD15032E8955A805A9F33F3 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

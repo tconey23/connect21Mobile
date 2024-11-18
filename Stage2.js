@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { View, ScrollView } from 'react-native';
 import Selection from './Selection';
 
-const Stage2 = ({ onDeselection, selectionLimit, setSelectionCount, onSelection, stageSelections, currentStage, selectionCount }) => {
+const Stage2 = ({ setPrompts, onDeselection, setSelectionCount, onSelection, stageSelections, currentStage, selectionCount }) => {
   const [purple] = useState('#c956ff')
 
   return (
@@ -13,13 +13,14 @@ const Stage2 = ({ onDeselection, selectionLimit, setSelectionCount, onSelection,
             key={i}
             option={opt}
             canSelect={true}
-            selectionLimit={selectionLimit}
+            options={options}
             setSelectionCount={setSelectionCount}
             onSelection={onSelection}
             selected={stageSelections[currentStage].includes(opt)}
             selectionCount={selectionCount}
             currentStage={currentStage}
             onDeselection={onDeselection}
+            setPrompts={setPrompts}
           />
         ))}
         {stageSelections && stageSelections[currentStage-2] && stageSelections[currentStage-2]

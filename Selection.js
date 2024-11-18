@@ -11,16 +11,17 @@ import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-nati
 
 const { width, height } = Dimensions.get('window');
 
-const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSelection, selected: propSelected, index, currentStage, selectionCount, stageSelections, onDeselection, optColor }) => {
+const Selection = ({ options, option, selected: propSelected, index, currentStage, setPrompts, setSelectionCount }) => {
   const [selected, setSelected] = useState(propSelected);
-  const [color, setColor] = useState(propSelected ? '#bd80ff' : '#d4d4d4');
   const [containerWidth, setContainerWidth] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
   const [purple] = useState('#c956ff');
   const [yellow] = useState('#fff200');
   const [green] = useState('#45d500');
   const [fontSize, setFontSize] = useState(15);
-  const [overrideCanSelect, setOverrideCanSelect] = useState(false)
+  const [countMax, setCountMax] = useState();
+  const [stageCount, setStageCount] = useState(0)
+
 
   const ANGLE = 2;
   const TIME = 80;
@@ -46,66 +47,54 @@ const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSel
     );
   };
 
+  const getStageColor = () => {
+    console.log(currentStage)
+    switch(currentStage){
+      case 0: return purple
+      break;
+      case 1: return yellow
+      break;
+      case 2: return green
+      break;
+      default: return purple
+    }
+  }
+
   const handleSelection = () => {
     handleSelected();
-    if (selected) {
-      setSelected(false);
-      setSelectionCount((prev) => Math.max(prev - 1, 0));
-      onDeselection(option)
-    } else if (canSelect && selectionCount < selectionLimit) {
-      setSelected(true);
-      setSelectionCount((prev) => Math.min(prev + 1, selectionLimit));
-      onSelection(option);
-    }
-  };
-
-  const getStageColor = (stageNum) => {
-    switch (stageNum) {
-      case 0:
-        return purple;
-      case 1:
-        return yellow;
-      case 2:
-        return green;
-      default:
-        return '#d4d4d4';
-    }
+    setPrompts((prevPrompts) =>
+      prevPrompts.map((prompt) =>
+        prompt.title === option.title
+          ? {
+              ...prompt,
+              color: getStageColor(),
+              stage: currentStage+1,
+              selected: !prompt.selected
+            }
+          : prompt
+      )
+    );
   };
 
   useEffect(() => {
-    setColor(selected ? getStageColor(currentStage) : getStageColor(currentStage-1));
-    if(currentStage === 2){
-      //console.log('selected', option, selected, overrideCanSelect)
-      setOverrideCanSelect(selected ? false : true)
+    switch(currentStage){
+      case 0: setCountMax(6)
+      break;
+      case 1: setCountMax(3)
+      break;
+      case 2: setCountMax(1)
+      break;
+      default: 6
     }
-  }, [selected, currentStage]);
+
+    setStageCount(options.filter((opts) => opts.selected === true).length)
+    setSelectionCount(options.filter((opts) => opts.selected === true).length)
+
+  }, [selected, currentStage, option, options]);
 
   useEffect(() => {
     setSelected(propSelected);
   }, [propSelected]);
-
-  useEffect(() => {
-    if (currentStage === 3) {
-      if (stageSelections[0].includes(option) && !stageSelections[1].includes(option)) {
-        setColor(getStageColor(0));
-      } else if (stageSelections[1].includes(option) && !stageSelections[2].includes(option)) {
-        setColor(getStageColor(1));
-      } else if (stageSelections[2].includes(option)) {
-        setColor(getStageColor(2));
-      }
-    }
-  }, [currentStage, option, stageSelections, canSelect]);
-
-  const checkCanSelect = (opt) => {
-    let result
-
-    if(canSelect){
-      result = 1
-    } else {
-      result = 0.5
-    }
-    return result
-  }
 
   return (
     <Animated.View
@@ -117,25 +106,26 @@ const Selection = ({ option, setSelectionCount, canSelect, selectionLimit, onSel
       key={index}
       style={[styles.optionContainer, animatedButton]}
     >
-      <TouchableOpacity
+      {<TouchableOpacity
         onPress={handleSelection}
+        disabled={!option.selected && stageCount >= countMax}
         style={{
-          backgroundColor: optColor ? optColor: color,
+          backgroundColor: option.selected ? option.color : '#d4d4d4',
           padding: 10,
           borderRadius: 10,
           alignItems: 'center',
           height: '100%',
           justifyContent: 'center',
-          opacity: checkCanSelect(option),
+          opacity: 1,
           elevation: 10,
         }}
       >
         {containerHeight && containerWidth && fontSize ? (
-          <Text style={[styles.optionText, { fontSize }]}>{option}</Text>
+          <Text style={[styles.optionText, { fontSize }]}>{option.title}</Text>
         ) : (
           <Text>Loading...</Text>
         )}
-      </TouchableOpacity>
+      </TouchableOpacity>}
     </Animated.View>
   );
 };

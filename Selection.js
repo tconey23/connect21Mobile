@@ -3,120 +3,65 @@ import Animated, {
   withTiming,
   Easing,
   useAnimatedStyle,
-  withRepeat,
   withSequence,
+  withRepeat,
 } from 'react-native-reanimated';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { Vibration, StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
 const Selection = ({ setSelectionLimit, options, option, currentStage, setPrompts, setSelectionCount, setResort }) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
-  const [purple] = useState('#c956ff');
-  const [yellow] = useState('#fff200');
-  const [green] = useState('#45d500');
-  const [grey] = useState('#d4d4d4')
+  const colors = ['#d4d4d4', '#c956ff', '#fff200', '#45d500'];
   const [fontSize, setFontSize] = useState(15);
-  const [countMax, setCountMax] = useState();
-  const [stageCount, setStageCount] = useState(0)
-
 
   const ANGLE = 2;
   const TIME = 80;
   const EASING = Easing.elastic(0.5);
-
   const buttonWobble = useSharedValue(0);
 
   const animatedButton = useAnimatedStyle(() => ({
     transform: [{ rotateZ: `${buttonWobble.value}deg` }],
   }));
 
+  const getStageColor = (stage) => colors[stage] || colors[0];
+
   const handleSelected = () => {
+    if (Vibration.vibrate) {
+      Vibration.vibrate([100, 100, 100, 100]);
+    }
+    buttonWobble.value = 0; // Reset animation
     buttonWobble.value = withSequence(
       withTiming(-ANGLE, { duration: TIME, easing: EASING }),
       withTiming(ANGLE, { duration: TIME, easing: EASING }),
-      withTiming(-ANGLE, { duration: TIME, easing: EASING }),
-      withRepeat(
-        withTiming(ANGLE, { duration: TIME, easing: EASING }),
-        2,
-        true
-      ),
+      withRepeat(withTiming(-ANGLE, { duration: TIME, easing: EASING }), 2, true),
       withTiming(0, { duration: TIME, easing: EASING })
     );
   };
 
-  const getStageColor = (stage) => {
-    switch(stage){
-      case 1: return purple
-      break;
-      case 2: return yellow
-      break;
-      case 3: return green
-      break;
-      default: return grey
-    }
-  }
-
   const handleSelection = () => {
     handleSelected();
-
-    if(option.selected){
-      setPrompts((prevPrompts) =>
-        prevPrompts.map((prompt) =>
-          prompt.title === option.title
-            ? {
-                ...prompt,
-                color: getStageColor(prompt.stage -1),
-                stage: prompt.stage -1,
-                selected: false
-              }
-            : prompt
-        )
-      );
-    } else {
-      setPrompts((prevPrompts) =>
-        prevPrompts.map((prompt) =>
-          prompt.title === option.title
-            ? {
-                ...prompt,
-                color: getStageColor(currentStage +1),
-                stage: currentStage +1,
-                selected: true
-              }
-            : prompt
-        )
-      );
-    }
-
-    setResort(prev => prev +1)
-
+    setPrompts((prevPrompts) =>
+      prevPrompts.map((prompt) =>
+        prompt.title === option.title
+          ? {
+              ...prompt,
+              color: getStageColor(option.selected ? prompt.stage - 1 : currentStage + 1),
+              stage: option.selected ? prompt.stage - 1 : currentStage + 1,
+              selected: !option.selected,
+            }
+          : prompt
+      )
+    );
+    setResort((prev) => prev + 1);
   };
 
   useEffect(() => {
-    switch(currentStage){
-      case 0: setCountMax(6)
-      break;
-      case 1: setCountMax(3)
-      break;
-      case 2: setCountMax(1)
-      break;
-      default: 6
-    }
-
-    setStageCount(options.filter((opts) => opts.selected === true).length)
-    setSelectionCount(options.filter((opts) => opts.selected === true).length)
-  }, [currentStage, option, options]);
-
-  useEffect(() => {
-    if(countMax){
-      setSelectionLimit(countMax)
-    }
-  }, [countMax])
-
-
-
+    setSelectionLimit([6, 3, 1][currentStage] || 6);
+    setSelectionCount(options.filter((opts) => opts.selected).length);
+  }, [currentStage, options]);
 
   return (
     <Animated.View
@@ -125,34 +70,15 @@ const Selection = ({ setSelectionLimit, options, option, currentStage, setPrompt
         setContainerWidth(width);
         setContainerHeight(height);
       }}
-      key={Date.now()}
+      key={option.title}
       style={[styles.optionContainer, animatedButton]}
     >
-      {currentStage < 3 ?
-        <TouchableOpacity
-          onPress={handleSelection}
-          disabled={!option.selected && stageCount >= countMax || option.stage < currentStage}
-          style={{
-            backgroundColor: option.color,
-            padding: 10,
-            borderRadius: 10,
-            alignItems: 'center',
-            height: '100%',
-            justifyContent: 'center',
-            opacity: !option.selected && stageCount >= countMax || option.stage < currentStage ? 0.4 :1,
-            elevation: 10,
-          }}
-        >
-        {containerHeight && containerWidth && fontSize ? (
-          <Text style={[styles.optionText, { fontSize }]}>{option.title}</Text>
-        ) : (
-          <Text>Loading...</Text>
-        )}
-      </TouchableOpacity>
-      :
-        <TouchableOpacity
+      <TouchableOpacity
         onPress={handleSelection}
-        disabled={true}
+        disabled={
+          (!option.selected && options.filter((opts) => opts.selected).length >= (6, 3, 1)[currentStage]) ||
+          option.stage < currentStage
+        }
         style={{
           backgroundColor: option.color,
           padding: 10,
@@ -160,7 +86,11 @@ const Selection = ({ setSelectionLimit, options, option, currentStage, setPrompt
           alignItems: 'center',
           height: '100%',
           justifyContent: 'center',
-          opacity: !option.selected && stageCount >= countMax ? 0.4 :1,
+          opacity:
+            (!option.selected && options.filter((opts) => opts.selected).length >= (6, 3, 1)[currentStage]) ||
+            option.stage < currentStage
+              ? 0.4
+              : 1,
           elevation: 10,
         }}
       >
@@ -170,7 +100,6 @@ const Selection = ({ setSelectionLimit, options, option, currentStage, setPrompt
           <Text>Loading...</Text>
         )}
       </TouchableOpacity>
-      }
     </Animated.View>
   );
 };

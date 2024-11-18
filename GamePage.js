@@ -3,89 +3,32 @@ import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-nati
 import { PixelRatio } from 'react-native';
 // import * as Font from 'expo-font';
 import Stage from './Stage';
-import Stage1 from './Stage1';
-import Stage2 from './Stage2';
-import Stage3 from './Stage3';
 import Hexagon from './Hexagon';
+import Stage3 from './Stage3';
 
 const fontSize = PixelRatio.getFontScale() * 25;
 const { width, height } = Dimensions.get('window')
 
 const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
   const [stageSelections, setStageSelections] = useState({ 0: [], 1: [], 2: [], 3: [] }); // Store selections for each stage
-  const [options, setOptions] = useState([]);
-  const [fontsLoaded, setFontsLoaded] = useState(true);
   const [selectionCount, setSelectionCount] = useState(0);
   const [currentStage, setCurrentStage] = useState(0);
   const [selectionLimit, setSelectionLimit] = useState(6);
-  const [canSelect, setCanSelect] = useState(true);
   const [hexagons, setHexagons] = useState([])
   const [purple] = useState('#c956ff')
   const [yellow] = useState('#fff200')
   const [green] = useState('#45d500')
-
-
-  // const loadFonts = async () => {
-  //   await Font.loadAsync({
-  //     'Roboto': require('./assets/fonts/Roboto_Mono/Robohttps://raw.githubusercontent.com/tconey23/connect21_be/refs/heads/main/ServerData/gptResp.jsontoMono-VariableFont_wght.ttf'),
-  //     'Fredoka': require('./assets/fonts/Fredoka/static/Fredoka-Regular.ttf'),
-  //   });
-  //   setFontsLoaded(true);
-  // };
+  const [share, setShare] = useState(false)
 
   useEffect(() => {
-    // loadFonts();
     setSelectionCount(0);
-    setOptions(prompts)
   }, []);
-
-  useEffect(() => {
-    setHexagons([])
-    if(currentStage === 3){
-      setCanSelect(false)
-    }
-    setSelectionCount(0)
-    switch (currentStage) {
-      case 0:
-        setSelectionLimit(6);
-        setStageSelections({ 0: [], 1: [], 2: [], 3: [] })
-        setCanSelect(true)
-        break;
-      case 1:
-        setSelectionLimit(3);
-        setStageSelections(prev => ({
-          ...prev,
-          1: [],
-          2: [],
-          3: []
-        }))
-        setCanSelect(true)
-        break;
-      case 2:
-        setSelectionLimit(1);
-        setStageSelections(prev => ({
-          ...prev,
-          2: [],
-          3: []
-        }))
-        setCanSelect(true)
-        break;
-      case 3:
-        setSelectionLimit(1);
-        setStageSelections(prev => ({
-          ...prev,
-          3: []
-        }))
-        setCanSelect(true)
-        break;
-    }
-  }, [currentStage]);
 
   useEffect(() => {
     let hexArray = []
 
     for(let i = 0; i < selectionLimit - selectionCount; i++){
-      hexArray.push(<Hexagon key={i} currentStage={currentStage}/>)
+      hexArray.push(<Hexagon key={i + Date.now()} currentStage={currentStage}/>)
     }
 
     for(let i = 0; i < selectionCount; i++){
@@ -93,93 +36,8 @@ const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
     }
 
     setHexagons(hexArray)
-  }, [selectionLimit, selectionCount])
-
-  const handleSelection = (selectedOption) => {
-
-    setStageSelections((prev) => {
-      const updatedSelections = { ...prev };
-      updatedSelections[currentStage] = [
-        ...updatedSelections[currentStage],
-        selectedOption,
-      ];
-      return updatedSelections;
-    });
-  };
-
-  const handleDeselection = (selectedOption) => { 
-    let foundOpt = stageSelections[currentStage].findIndex((opt) => opt === selectedOption)
-    let optArray = stageSelections[currentStage]
-    optArray.splice(foundOpt,1)
-    setStageSelections(prev => ({
-      ...prev,
-      currentStage: optArray
-    }));
-  };
-
-  const renderCurrentStage = () => {
-    switch (currentStage) {
-      case 0:
-        return (
-          <Stage
-            options={prompts}
-            canSelect={canSelect}
-            setSelectionCount={setSelectionCount}
-            onSelection={handleSelection}
-            onDeselection={handleDeselection}
-            currentStage={currentStage}
-            stageSelections={stageSelections}
-            selectionCount={selectionCount}
-            setPrompts={setPrompts}
-          />
-        );
-      case 1:
-        return (
-          <Stage1
-          options={prompts}
-          canSelect={canSelect}
-          setSelectionCount={setSelectionCount}
-          onSelection={handleSelection}
-          onDeselection={handleDeselection}
-          currentStage={currentStage}
-          stageSelections={stageSelections}
-          selectionCount={selectionCount}
-          setPrompts={setPrompts}
-          />
-        );
-      case 2:
-        return (
-          <Stage2
-          options={prompts}
-          canSelect={canSelect}
-          setSelectionCount={setSelectionCount}
-          onSelection={handleSelection}
-          onDeselection={handleDeselection}
-          currentStage={currentStage}
-          stageSelections={stageSelections}
-          selectionCount={selectionCount}
-          setPrompts={setPrompts}
-          />
-        );
-      case 3:
-        return (
-          <Stage3
-          options={prompts}
-          canSelect={canSelect}
-          setSelectionCount={setSelectionCount}
-          onSelection={handleSelection}
-          currentStage={currentStage}
-          stageSelections={stageSelections}
-          selectionCount={selectionCount}
-          setStartGame={setStartGame}
-          saveDatePlayed={saveDatePlayed}
-          setPrompts={setPrompts}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+    // console.log(selectionLimit)
+  }, [selectionLimit, selectionCount, currentStage])
 
   const handleBack = () => {
     currentStage > 0 ? setCurrentStage((prev) => prev - 1) : setStartGame(false)
@@ -195,7 +53,25 @@ const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
       {currentStage === 1 && <Text style={styles.headerText}>Choose your Trifecta!</Text>}
       {currentStage === 2 && <Text style={styles.headerText}>And your mood-boostiest?!</Text>}
       {currentStage < 3 && <View style={{flexDirection: 'row-reverse'}}>{hexagons}</View>}
-      {fontsLoaded && renderCurrentStage()}
+      {currentStage < 3 ? 
+          <Stage
+              options={prompts}
+              setSelectionCount={setSelectionCount}
+              currentStage={currentStage}
+              setPrompts={setPrompts}
+              setSelectionLimit={setSelectionLimit}
+          />
+          : 
+          <Stage3 
+            options={prompts}
+            setSelectionCount={setSelectionCount}
+            currentStage={currentStage}
+            setPrompts={setPrompts}
+            setSelectionLimit={setSelectionLimit}
+            saveDatePlayed={saveDatePlayed}
+            share={share}
+          />
+        }
       <View style={styles.buttonContainer}>
         {currentStage !== 3 &&<TouchableOpacity
           style={[styles.button, {backgroundColor: purple}]}
@@ -205,7 +81,8 @@ const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
         >
           <Text style={styles.text}>BACK</Text>
         </TouchableOpacity>}
-        {selectionLimit === selectionCount && (
+
+        {selectionLimit === selectionCount && currentStage !== 3 &&(
           <TouchableOpacity
           style={[styles.button, {backgroundColor: purple}]}
             onPress={() => setCurrentStage((prev) => prev + 1)}
@@ -213,6 +90,22 @@ const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
             <Text style={styles.text}>NEXT</Text>
           </TouchableOpacity>
         )}
+
+        {currentStage === 3 &&
+        <>
+        <TouchableOpacity
+          style={[styles.button, {backgroundColor: purple}]}
+          onPress={() =>
+            handleBack()
+          }
+        >
+          <Text style={styles.text}>BACK</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, {backgroundColor: purple}]} onPress={() => setShare(true)}>
+          <Text style={styles.buttonText}>SHARE</Text>
+        </TouchableOpacity>
+        </>
+        }
       </View>
     </View>
   );
@@ -243,8 +136,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    height: 40,
-    marginTop: 20,
+    height: 'fit-content',
+    marginTop: 10,
     marginBottom: 20
   },
   text: {

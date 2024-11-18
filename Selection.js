@@ -7,17 +7,17 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-const Selection = ({ options, option, selected: propSelected, index, currentStage, setPrompts, setSelectionCount }) => {
-  const [selected, setSelected] = useState(propSelected);
+const Selection = ({ setSelectionLimit, options, option, currentStage, setPrompts, setSelectionCount, setResort }) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
   const [purple] = useState('#c956ff');
   const [yellow] = useState('#fff200');
   const [green] = useState('#45d500');
+  const [grey] = useState('#d4d4d4')
   const [fontSize, setFontSize] = useState(15);
   const [countMax, setCountMax] = useState();
   const [stageCount, setStageCount] = useState(0)
@@ -47,33 +47,51 @@ const Selection = ({ options, option, selected: propSelected, index, currentStag
     );
   };
 
-  const getStageColor = () => {
-    console.log(currentStage)
-    switch(currentStage){
-      case 0: return purple
+  const getStageColor = (stage) => {
+    switch(stage){
+      case 1: return purple
       break;
-      case 1: return yellow
+      case 2: return yellow
       break;
-      case 2: return green
+      case 3: return green
       break;
-      default: return purple
+      default: return grey
     }
   }
 
   const handleSelection = () => {
     handleSelected();
-    setPrompts((prevPrompts) =>
-      prevPrompts.map((prompt) =>
-        prompt.title === option.title
-          ? {
-              ...prompt,
-              color: getStageColor(),
-              stage: currentStage+1,
-              selected: !prompt.selected
-            }
-          : prompt
-      )
-    );
+
+    if(option.selected){
+      setPrompts((prevPrompts) =>
+        prevPrompts.map((prompt) =>
+          prompt.title === option.title
+            ? {
+                ...prompt,
+                color: getStageColor(prompt.stage -1),
+                stage: prompt.stage -1,
+                selected: false
+              }
+            : prompt
+        )
+      );
+    } else {
+      setPrompts((prevPrompts) =>
+        prevPrompts.map((prompt) =>
+          prompt.title === option.title
+            ? {
+                ...prompt,
+                color: getStageColor(currentStage +1),
+                stage: currentStage +1,
+                selected: true
+              }
+            : prompt
+        )
+      );
+    }
+
+    setResort(prev => prev +1)
+
   };
 
   useEffect(() => {
@@ -89,12 +107,16 @@ const Selection = ({ options, option, selected: propSelected, index, currentStag
 
     setStageCount(options.filter((opts) => opts.selected === true).length)
     setSelectionCount(options.filter((opts) => opts.selected === true).length)
-
-  }, [selected, currentStage, option, options]);
+  }, [currentStage, option, options]);
 
   useEffect(() => {
-    setSelected(propSelected);
-  }, [propSelected]);
+    if(countMax){
+      setSelectionLimit(countMax)
+    }
+  }, [countMax])
+
+
+
 
   return (
     <Animated.View
@@ -103,20 +125,42 @@ const Selection = ({ options, option, selected: propSelected, index, currentStag
         setContainerWidth(width);
         setContainerHeight(height);
       }}
-      key={index}
+      key={Date.now()}
       style={[styles.optionContainer, animatedButton]}
     >
-      {<TouchableOpacity
+      {currentStage < 3 ?
+        <TouchableOpacity
+          onPress={handleSelection}
+          disabled={!option.selected && stageCount >= countMax || option.stage < currentStage}
+          style={{
+            backgroundColor: option.color,
+            padding: 10,
+            borderRadius: 10,
+            alignItems: 'center',
+            height: '100%',
+            justifyContent: 'center',
+            opacity: !option.selected && stageCount >= countMax || option.stage < currentStage ? 0.4 :1,
+            elevation: 10,
+          }}
+        >
+        {containerHeight && containerWidth && fontSize ? (
+          <Text style={[styles.optionText, { fontSize }]}>{option.title}</Text>
+        ) : (
+          <Text>Loading...</Text>
+        )}
+      </TouchableOpacity>
+      :
+        <TouchableOpacity
         onPress={handleSelection}
-        disabled={!option.selected && stageCount >= countMax}
+        disabled={true}
         style={{
-          backgroundColor: option.selected ? option.color : '#d4d4d4',
+          backgroundColor: option.color,
           padding: 10,
           borderRadius: 10,
           alignItems: 'center',
           height: '100%',
           justifyContent: 'center',
-          opacity: 1,
+          opacity: !option.selected && stageCount >= countMax ? 0.4 :1,
           elevation: 10,
         }}
       >
@@ -125,7 +169,8 @@ const Selection = ({ options, option, selected: propSelected, index, currentStag
         ) : (
           <Text>Loading...</Text>
         )}
-      </TouchableOpacity>}
+      </TouchableOpacity>
+      }
     </Animated.View>
   );
 };

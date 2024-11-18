@@ -38,7 +38,7 @@ export default function App() {
       if (data) {
         setPrompts(Object.values(data)[0].map((opt) => ({
           title: opt,
-          stage: null,
+          stage: 0,
           color: '#d4d4d4',
           canSelect: true,
           selected: false

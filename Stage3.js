@@ -8,12 +8,22 @@ import Selection from './Selection';
 
 const { width, height } = Dimensions.get('window');
 
-const Stage3 = ({ setPrompts, saveDatePlayed, canSelect, selectionLimit, setSelectionCount, onSelection, stageSelections, currentStage, selectionCount }) => {
+const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelectionLimit, saveDatePlayed, share }) => {
   const viewRef = useRef(null);
-  const textRef = useRef()
   const [purple] = useState('#c956ff')
   const [textLength, setTextLength] = useState(0)
-  const [scroll, setScroll] = useState()
+  const [favorite, setFavorite] = useState('this')
+  const [userText, setUserText] = useState('')
+
+  useEffect(() => {
+    if(options){
+      let fav = options.find((opt) => opt.stage === 3)
+      console.log(fav)
+      setFavorite(fav)
+    }
+  }, [options])
+
+
 
   const takeScreenshotAndShare = async () => {
     if (!viewRef.current) {
@@ -43,6 +53,13 @@ const Stage3 = ({ setPrompts, saveDatePlayed, canSelect, selectionLimit, setSele
     }
   };
 
+  useEffect(() => {
+    console.log(share)
+    if(share){
+      takeScreenshotAndShare()
+    }
+  }, [share])
+
   const handleInputFocus = () => {
     if(viewRef.current){
       viewRef.current.scrollTo({ x: 0, y: 259, animated: true });
@@ -57,50 +74,58 @@ const Stage3 = ({ setPrompts, saveDatePlayed, canSelect, selectionLimit, setSele
 
   const handleTextLength = (text) => {
     setTextLength(text.length)
+    setUserText(text)
   }
 
-
- 
   return (
-    <View style={{height: '95%', width: width, flexDirection: 'column', justifyContent: 'flex-start'}}>
+    <View style={{height: '90%', width: width, flexDirection: 'column', justifyContent: 'flex-start', backgroundColor: 'white'}}>
         <ScrollView ref={viewRef} style={styles.screenshot}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', height: '75%' }}>
-            {stageSelections && stageSelections[0] && stageSelections[0].map((opt, i) => (
-              <Selection
-              key={i}
-              option={opt}
-              canSelect={canSelect}
-              selectionLimit={selectionLimit}
-              setSelectionCount={setSelectionCount}
-              onSelection={onSelection}
-              selected={stageSelections[currentStage].includes(opt)}
-              selectionCount={selectionCount}
-              stageSelections={stageSelections}
-              currentStage={currentStage}
-              setPrompts={setPrompts}
-              />
-            ))}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', marginBottom: 40}}>
+          {options && favorite && 
+          options
+            .filter((opt) => currentStage === 0 ? opt : opt.stage >= 1)
+            .sort((a, b) => {
+              const stageA = a.stage ?? Infinity;
+              const stageB = b.stage ?? Infinity;
+
+              return stageB - stageA; 
+            })
+            .map((opt, i) => {
+              if (i < 21) {
+                return (
+                  <Selection
+                    key={`stage ${i}`}
+                    currentStage={currentStage}
+                    setSelectionCount={setSelectionCount}
+                    option={opt}
+                    options={options}
+                    setPrompts={setPrompts}
+                    setSelectionLimit={setSelectionLimit}
+                  />
+                );
+              }
+              return null;
+            })}
           </View>
+          {!share && 
           <View style={{width: '100%', marginTop: -40}}>
             <Text style={{backgroundColor: 'green', width: (width * textLength) / 180}}></Text>
             <Text style={{marginTop: 0, textAlign: 'center'}}>{`${textLength}/180`}</Text>
-          </View>
+          </View>}
         <View style={styles.textInput}>
-          <TextInput
+        {!share ?
+        <TextInput
             multiline
-            placeholder={`Write something about '${stageSelections[2]}'`}
+            placeholder={`Write something about '${favorite.title}'`}
             autoFocus={false}
             onFocus={() => handleInputFocus()}
             onBlur={() => handleInputBlur()}
             style={{ maxWidth: '85%', color: 'black', height: 'auto'}}
             maxLength={180}
             onChangeText={(text) => handleTextLength(text)}
-            />
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={[styles.button, {backgroundColor: purple}]} onPress={takeScreenshotAndShare}>
-          <Text style={styles.buttonText}>SHARE</Text>
-        </TouchableOpacity>
+          />
+          :
+          <Text>{userText}</Text>}
       </View>
         </ScrollView>
   </View>
@@ -111,8 +136,8 @@ export default Stage3;
 
 const styles = StyleSheet.create({
   container: {
-    height: '95%',
-    backgroundColor: '#fff',
+    height: '100%',
+    backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'flex-start',
     width: width,
@@ -121,27 +146,12 @@ const styles = StyleSheet.create({
   screenshot: {
     height: '100%',
     width: width,
-  },
-  button: {
-    borderRadius: 5,
-    marginHorizontal: 10,
-    width: 100,
-    height: 50,
-    color: 'black',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 60
-  },
-  buttonContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: width,
-    flexDirection: 'row',
+    backgroundColor: 'white'
   },
   textInput: {
     height: 100,
     backgroundColor: 'white',
-    paddingHorizontal: 8,
+    paddingHorizontal: 0,
     borderColor: 'black',
     borderStyle: 'solid',
     borderWidth: 1,
@@ -150,7 +160,7 @@ const styles = StyleSheet.create({
     width: width,
     alignItems: 'center',
     color: 'black',
-    marginBottom: 10
+    marginBottom: 0
   },
   buttonText: {
     color:  'black',

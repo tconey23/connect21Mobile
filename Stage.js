@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { View, ScrollView } from 'react-native';
 import Selection from './Selection';
 
@@ -6,16 +6,32 @@ const Stage = ({
   setPrompts,
   currentStage,
   options,
-  selectionCount,
   setSelectionCount,
-  canSelect,
-  setCanSelect,
-  onDeselection,
-  onSelection,
+  setSelectionLimit
 }) => {
+  const [resort, setResort] = useState(2)
+  useEffect(() =>{
+    if(currentStage > 0){
+      setPrompts((prevPrompts) =>
+        prevPrompts.map((prompt) =>
+          prompt.selected
+            ? {
+                ...prompt,
+                stage: currentStage,
+                selected: !prompt.selected
+              }
+            : prompt
+        )
+      );
+    }
+  }, [currentStage])
+  console.clear()
+  console.log(options)
+  console.log(...options.filter((opt) => opt.stage < currentStage))
   return (
     <ScrollView style={{ flex: 1 }}>
       <View
+        key={resort}
         style={{
           flexDirection: 'row',
           flexWrap: 'wrap',
@@ -25,28 +41,25 @@ const Stage = ({
       >
         {options &&
           options
+            .filter((opt) => currentStage === 0 ? opt : opt.stage >= 1)
             .sort((a, b) => {
               const stageA = a.stage ?? Infinity;
               const stageB = b.stage ?? Infinity;
 
-              return stageA - stageB; 
+              return stageB - stageA; 
             })
             .map((opt, i) => {
               if (i < 21) {
                 return (
                   <Selection
-                    key={i}
+                    key={`stage ${i}`}
                     currentStage={currentStage}
-                    canSelect={canSelect}
-                    setCanSelect={setCanSelect}
                     setSelectionCount={setSelectionCount}
                     option={opt}
                     options={options}
-                    index={i}
-                    selectionCount={selectionCount}
-                    onSelection={onSelection}
-                    onDeselection={onDeselection}
                     setPrompts={setPrompts}
+                    setSelectionLimit={setSelectionLimit}
+                    setResort={setResort}
                   />
                 );
               }

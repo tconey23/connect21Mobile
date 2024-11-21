@@ -8,8 +8,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import BetaAlert from './BetaAlert'
 import HelpPage from './HelpPage'
 import Svg, { G, Path, Defs, ClipPath } from "react-native-svg"
-import { red } from 'react-native-reanimated/lib/typescript/Colors';
-import { render } from 'react-dom';
 
 const HelpIcon = ({size, setToggleHelp}) => {
   return (
@@ -25,7 +23,7 @@ const { width, height } = Dimensions.get('window');
 
 export default function App() {
   const [startGame, setStartGame] = useState(false);
-  const [categoryName, setCategoryName] = useState();
+  const [categoryName, setCategoryName] = useState('loading');
   const [prompts, setPrompts] = useState();
   const [playedToday, setPlayedToday] = useState(false);
   const [betaReset, setBetaReset] = useState(false)
@@ -120,30 +118,6 @@ export default function App() {
     }
   }, [betaReset])
 
-  const renderCurrentStage = () => {
-    switch (display) {
-      case ('landing'):
-      return (
-        <LandingAnimation categoryName={categoryName} setStartGame={() => {
-          setStartGame(true);
-        }} />
-      );
-      case ('game'):
-        return (
-          <GamePage setPrompts={setPrompts} prompts={prompts} setStartGame={setStartGame} saveDatePlayed={saveDatePlayed}/>
-        );
-      case ('help'):
-        return (
-          <HelpPage setToggleHelp={setDisplay} toggleHelp={display}/>
-        );
-      case ('played'):
-        return (
-          <UserPrompt setStartGame={setStartGame} playedToday={playedToday} setBetaReset={setBetaReset}/>
-        );
-    }
-
-  }
-
   return (
     <View style={{flex:1}}>
       <BetaAlert setToggleHelp={setDisplay}/>
@@ -157,7 +131,12 @@ export default function App() {
       <View style={{elevation: 20, width: width, height: '7%', alignItems: 'flex-end', padding: 10, marginBottom: -23}}>
         <HelpIcon setToggleHelp={setDisplay} size={20}/>
       </View>
-      {renderCurrentStage()}
+      {
+        startGame ? 
+        <GamePage setPrompts={setPrompts} prompts={prompts} setStartGame={setStartGame} saveDatePlayed={saveDatePlayed}/>
+        :
+        <LandingAnimation categoryName={categoryName} setStartGame={setStartGame} />
+      }
     </SafeAreaView>
 </KeyboardAvoidingView>
 </View>

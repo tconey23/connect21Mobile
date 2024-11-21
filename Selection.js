@@ -1,13 +1,6 @@
-import Animated, {
-  useSharedValue,
-  withTiming,
-  Easing,
-  useAnimatedStyle,
-  withSequence,
-  withRepeat,
-} from 'react-native-reanimated';
+
 import React, { useState, useEffect } from 'react';
-import { Vibration, StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, Dimensions, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -16,30 +9,13 @@ const Selection = ({ setSelectionLimit, options, option, currentStage, setPrompt
   const [containerHeight, setContainerHeight] = useState(0);
   const colors = ['#d4d4d4', '#c956ff', '#fff200', '#45d500'];
   const [fontSize, setFontSize] = useState(15);
-
-  const ANGLE = 2;
-  const TIME = 80;
-  const EASING = Easing.elastic(0.5);
-  const buttonWobble = useSharedValue(0);
-
-  const animatedButton = useAnimatedStyle(() => ({
-    transform: [{ rotateZ: `${buttonWobble.value}deg` }],
-  }));
-
   const getStageColor = (stage) => colors[stage] || colors[0];
-
+  
   const handleSelected = () => {
-    if (Vibration.vibrate) {
-      Vibration.vibrate([100, 100, 100, 100]);
-    }
-    buttonWobble.value = 0; // Reset animation
-    buttonWobble.value = withSequence(
-      withTiming(-ANGLE, { duration: TIME, easing: EASING }),
-      withTiming(ANGLE, { duration: TIME, easing: EASING }),
-      withRepeat(withTiming(-ANGLE, { duration: TIME, easing: EASING }), 2, true),
-      withTiming(0, { duration: TIME, easing: EASING })
-    );
+
   };
+
+  let animatedButton
 
   const handleSelection = () => {
     handleSelected();
@@ -64,7 +40,7 @@ const Selection = ({ setSelectionLimit, options, option, currentStage, setPrompt
   }, [currentStage, options]);
 
   return (
-    <Animated.View
+    <View
       onLayout={(event) => {
         const { width, height } = event.nativeEvent.layout;
         setContainerWidth(width);
@@ -100,7 +76,7 @@ const Selection = ({ setSelectionLimit, options, option, currentStage, setPrompt
           <Text>Loading...</Text>
         )}
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 };
 

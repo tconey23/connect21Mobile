@@ -1,12 +1,3 @@
-import Animated, {
-  useSharedValue,
-  withTiming,
-  Easing,
-  useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withDelay,
-} from 'react-native-reanimated';
 import { View, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import HexButton from './HexButton';
@@ -15,129 +6,41 @@ const { width, height } = Dimensions.get('window')
 
 const LandingAnimation = ({ setStartGame, categoryName }) => {
   const [purple] = useState('#c956ff');
-  const [yellow] = useState('#fff200');
-  const [green] = useState('#45d500');
-  const [fontsLoaded, setFontsLoaded] = useState(true);
   const [dateToday] = useState(new Date().toDateString())
-  const [rotation, setRotation] = useState(1)
-
-  const SCALE_UP = 1.5;
-  const TIME = 400;
-  const EASING = Easing.elastic(0.3);
-  const textShadowColors = [purple, purple, purple, yellow, yellow, green];
-  const HEXEASING = Easing.elastic(0.01)
 
   const titleText = '21Things';
-  const scaleValues = titleText.split('').map(() => useSharedValue(1));
-  const hexRotationValues = useSharedValue(0);
-  const buttonWobble = useSharedValue(1);
 
-  const animatedText = (scaleValue) =>
-    useAnimatedStyle(() => ({
-      transform: [{ scale: scaleValue.value }],
-    }));
-
-  const animatedHex = useAnimatedStyle(() => ({
-    transform: [{ rotateZ: `${hexRotationValues.value}deg` }],
-  }));
-
-  const animatedButton = useAnimatedStyle(() => ({
-    transform: [{ rotateZ: `${buttonWobble.value}deg`}],
-  }));
-
-  useEffect(() => {
-    scaleValues.forEach((scale, index) => {
-      scale.value = withDelay(
-        index * 200,
-        withRepeat(
-          withSequence(
-            withTiming(SCALE_UP, { duration: TIME, easing: EASING }),
-            withTiming(1, { duration: TIME, easing: EASING })
-          ),
-          1,
-          true
-        )
-      );
-    });
-
-    let hexAngle = 60
-    let hexTiming = 2000
-
-    hexRotationValues.value = withRepeat(
-      withSequence(
-        withTiming(0, { duration: hexTiming, easing: HEXEASING }),
-        withTiming(hexAngle *2, { duration: hexTiming, easing: HEXEASING }),
-        // withTiming(hexAngle *10, { duration: hexTiming, easing: HEXEASING }),
-        // withTiming(hexAngle *4, { duration: hexTiming, easing: HEXEASING }),
-        // withTiming(hexAngle *5, { duration: hexTiming, easing: HEXEASING }),
-        // withTiming(hexAngle, { duration: hexTiming, easing: HEXEASING }), 
-        // withTiming(hexAngle *3, { duration: hexTiming, easing: HEXEASING }),
-
-      ),
-      1, 
-      true 
-    );
-
-    buttonWobble.value = withRepeat(
-      withSequence(
-        withTiming(-5, { duration: 100, easing: EASING }),
-        withTiming(5, { duration: 100, easing: EASING }),
-        withTiming(-5, { duration: 100, easing: EASING }),
-        withTiming(0, { duration: 100, easing: EASING }),
-        withDelay(1000, withTiming(0, { duration: 0 }))
-      ),
-      -1,
-      true
-    );
-  }, []);
-
-  const hexTap = () => {
-    console.log('hextap')
-    let hexAngle = 720 * rotation
-    let hexTiming = 2000
-
-    hexRotationValues.value = withRepeat(
-      withSequence(
-        withTiming(hexAngle *2, { duration: hexTiming, easing: HEXEASING }),
-      ),
-      2, 
-      true 
-    );
-    setRotation(prev => prev +4)
-  }
+  let animatedHex
+  let animatedButton
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.hexContainer, animatedHex]}>
-        <TouchableOpacity onPress={() => hexTap()} >
+      <View style={[styles.hexContainer, animatedHex]}>
+        <TouchableOpacity>
           <HexButton size={200} />
         </TouchableOpacity>
-      </Animated.View>
+      </View>
       <View style={styles.titleContainer}>
         {titleText.split('').map((char, i) => (
-          <Animated.Text
+          <Text
             key={i}
             style={[
-              styles.text,
-              animatedText(scaleValues[i]),
-              {
-                textShadowColor: isNaN(char) ? textShadowColors[i - 2] : 'black',
-              },
+              styles.text
             ]}
           >
             {char}
-          </Animated.Text>
+          </Text>
         ))}
       </View>
       <View style={styles.categoryWrapper}>
         <Text style={styles.catText}>{categoryName}</Text>
         <Text style={[styles.catText, {fontSize: 18}]}>{dateToday}</Text>
       </View>
-      <Animated.View style={animatedButton}>
+      <View style={animatedButton}>
         <TouchableOpacity onPress={() => setStartGame(true)} style={[styles.button, {backgroundColor: purple}]}>
-          {fontsLoaded && <Text style={styles.buttonText}>PLAY!</Text>}
+          <Text style={styles.buttonText}>PLAY!</Text>
         </TouchableOpacity>
-      </Animated.View>
+      </View>
     </View>
   );
 };

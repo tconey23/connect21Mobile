@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
 import { PixelRatio } from 'react-native';
-// import * as Font from 'expo-font';
 import Stage from './Stage';
 import Hexagon from './Hexagon';
 import Stage3 from './Stage3';
@@ -10,14 +9,12 @@ const fontSize = PixelRatio.getFontScale() * 25;
 const { width, height } = Dimensions.get('window')
 
 const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
-  const [stageSelections, setStageSelections] = useState({ 0: [], 1: [], 2: [], 3: [] }); // Store selections for each stage
+
   const [selectionCount, setSelectionCount] = useState(0);
   const [currentStage, setCurrentStage] = useState(0);
   const [selectionLimit, setSelectionLimit] = useState(6);
   const [hexagons, setHexagons] = useState([])
   const [purple] = useState('#c956ff')
-  const [yellow] = useState('#fff200')
-  const [green] = useState('#45d500')
   const [share, setShare] = useState(false)
 
   useEffect(() => {
@@ -36,16 +33,11 @@ const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
     }
 
     setHexagons(hexArray)
-    // console.log(selectionLimit)
   }, [selectionLimit, selectionCount, currentStage])
 
   const handleBack = () => {
     currentStage > 0 ? setCurrentStage((prev) => prev - 1) : setStartGame(false)
   }
-
-  useEffect(() => {
-    // console.log(prompts)
-  }, [prompts])
 
   return (
     <View style={styles.container}>

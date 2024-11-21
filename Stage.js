@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, ScrollView } from 'react-native';
 import Selection from './Selection';
 
@@ -7,27 +7,30 @@ const Stage = ({
   currentStage,
   options,
   setSelectionCount,
-  setSelectionLimit
+  setSelectionLimit,
 }) => {
-  const [resort, setResort] = useState(2)
-  useEffect(() =>{
-    if(currentStage > 0){
+  const [resort, setResort] = useState(2);
+
+  useEffect(() => {
+    if (currentStage > 0 && typeof setPrompts === 'function') {
       setPrompts((prevPrompts) =>
         prevPrompts.map((prompt) =>
           prompt.selected
             ? {
                 ...prompt,
                 stage: currentStage,
-                selected: !prompt.selected
+                selected: !prompt.selected,
               }
             : prompt
         )
       );
+    } else {
+      console.warn('setPrompts is not a function or currentStage <= 0');
     }
-  }, [currentStage])
-  console.clear()
-  console.log(options)
-  console.log(...options.filter((opt) => opt.stage < currentStage))
+  }, [currentStage, setPrompts]);
+
+  const validOptions = Array.isArray(options) ? options : [];
+
   return (
     <ScrollView style={{ flex: 1 }}>
       <View
@@ -39,32 +42,31 @@ const Stage = ({
           height: '75%',
         }}
       >
-        {options &&
-          options
-            .filter((opt) => currentStage === 0 ? opt : opt.stage >= 1)
-            .sort((a, b) => {
-              const stageA = a.stage ?? Infinity;
-              const stageB = b.stage ?? Infinity;
+        {validOptions
+          .filter((opt) => (currentStage === 0 ? opt : opt.stage >= 1))
+          .sort((a, b) => {
+            const stageA = a.stage ?? Infinity;
+            const stageB = b.stage ?? Infinity;
 
-              return stageB - stageA; 
-            })
-            .map((opt, i) => {
-              if (i < 21) {
-                return (
-                  <Selection
-                    key={`stage ${i}`}
-                    currentStage={currentStage}
-                    setSelectionCount={setSelectionCount}
-                    option={opt}
-                    options={options}
-                    setPrompts={setPrompts}
-                    setSelectionLimit={setSelectionLimit}
-                    setResort={setResort}
-                  />
-                );
-              }
-              return null;
-            })}
+            return stageB - stageA;
+          })
+          .map((opt, i) => {
+            if (i < 21) {
+              return (
+                <Selection
+                  key={`stage ${i}`}
+                  currentStage={currentStage}
+                  setSelectionCount={setSelectionCount}
+                  option={opt}
+                  options={validOptions}
+                  setPrompts={setPrompts}
+                  setSelectionLimit={setSelectionLimit}
+                  setResort={setResort}
+                />
+              );
+            }
+            return null;
+          })}
       </View>
     </ScrollView>
   );

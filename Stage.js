@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView } from 'react-native';
 import Selection from './Selection';
+import { useSpring, animated } from "@react-spring/native";
 
 const Stage = ({
   setPrompts,
@@ -8,8 +9,12 @@ const Stage = ({
   options,
   setSelectionCount,
   setSelectionLimit,
+  selectionCount,
+  selectionLimit
 }) => {
   const [resort, setResort] = useState(2);
+
+
 
   useEffect(() => {
     if (currentStage > 0 && typeof setPrompts === 'function') {
@@ -25,7 +30,7 @@ const Stage = ({
         )
       );
     } else {
-      console.warn('setPrompts is not a function or currentStage <= 0');
+      // console.warn('setPrompts is not a function or currentStage <= 0');
     }
   }, [currentStage, setPrompts]);
 
@@ -34,7 +39,6 @@ const Stage = ({
   return (
     <ScrollView style={{ flex: 1 }}>
       <View
-        key={resort}
         style={{
           flexDirection: 'row',
           flexWrap: 'wrap',
@@ -44,12 +48,6 @@ const Stage = ({
       >
         {validOptions
           .filter((opt) => (currentStage === 0 ? opt : opt.stage >= 1))
-          .sort((a, b) => {
-            const stageA = a.stage ?? Infinity;
-            const stageB = b.stage ?? Infinity;
-
-            return stageB - stageA;
-          })
           .map((opt, i) => {
             if (i < 21) {
               return (
@@ -62,6 +60,8 @@ const Stage = ({
                   setPrompts={setPrompts}
                   setSelectionLimit={setSelectionLimit}
                   setResort={setResort}
+                  selectionCount={selectionCount}
+                  selectionLimit={selectionLimit}
                 />
               );
             }

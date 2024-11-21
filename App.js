@@ -7,11 +7,11 @@ import LandingAnimation from './LandingAnimation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BetaAlert from './BetaAlert'
 import HelpPage from './HelpPage'
-import Svg, { G, Path, Defs, ClipPath } from "react-native-svg"
+import Svg, {Path,} from "react-native-svg"
 
 const HelpIcon = ({size, setToggleHelp}) => {
   return (
-    <TouchableOpacity onPress={() => setToggleHelp('help')} >
+    <TouchableOpacity onPress={() => setToggleHelp(true)} >
       <Svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width={`${size}px`} height={`${size}px`}>
         <Path fill={'#c956ff'} d="M12,0A12,12,0,1,0,24,12,12.013,12.013,0,0,0,12,0Zm0,20a1,1,0,1,1,1-1A1,1,0,0,1,12,20Zm1.93-7.494A1.982,1.982,0,0,0,13,14.257V15a1,1,0,0,1-2,0v-.743a3.954,3.954,0,0,1,1.964-3.5,2,2,0,0,0,1-2.125,2.024,2.024,0,0,0-1.6-1.595A2,2,0,0,0,10,9,1,1,0,0,1,8,9a4,4,0,1,1,5.93,3.505Z"/>
       </Svg>
@@ -28,6 +28,7 @@ export default function App() {
   const [playedToday, setPlayedToday] = useState(false);
   const [betaReset, setBetaReset] = useState(false)
   const [display, setDisplay] = useState('landing')
+  const [toggleHelp, setToggleHelp] = useState(false)
 
   const fetchOptions = async () => {
     try {
@@ -116,11 +117,11 @@ export default function App() {
     if(betaReset) {
       resetGame()
     }
-  }, [betaReset])
+  }, [betaReset, toggleHelp])
 
   return (
     <View style={{flex:1}}>
-      <BetaAlert setToggleHelp={setDisplay}/>
+      <BetaAlert setToggleHelp={setToggleHelp}/>
     <KeyboardAvoidingView
       style={{height: '100%',justifyContent: 'flex-start'}}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -129,14 +130,15 @@ export default function App() {
     <SafeAreaView style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'column'}}>
       {playedToday && <UserPrompt setStartGame={setStartGame} playedToday={playedToday} setBetaReset={setBetaReset}/>}
       <View style={{elevation: 20, width: width, height: '7%', alignItems: 'flex-end', padding: 10, marginBottom: -23}}>
-        <HelpIcon setToggleHelp={setDisplay} size={20}/>
+        <HelpIcon setToggleHelp={setToggleHelp} size={20}/>
       </View>
       {
-        startGame ? 
+        startGame ?
         <GamePage setPrompts={setPrompts} prompts={prompts} setStartGame={setStartGame} saveDatePlayed={saveDatePlayed}/>
-        :
+        : 
         <LandingAnimation categoryName={categoryName} setStartGame={setStartGame} />
       }
+      <HelpPage toggleHelp={toggleHelp} setToggleHelp={setToggleHelp} />
     </SafeAreaView>
 </KeyboardAvoidingView>
 </View>

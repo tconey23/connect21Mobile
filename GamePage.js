@@ -47,11 +47,14 @@ const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
       {currentStage < 3 && <View style={{flexDirection: 'row-reverse'}}>{hexagons}</View>}
       {currentStage < 3 ? 
           <Stage
+              key={currentStage}
               options={prompts}
               setSelectionCount={setSelectionCount}
+              selectionCount={selectionCount}
               currentStage={currentStage}
               setPrompts={setPrompts}
               setSelectionLimit={setSelectionLimit}
+              selectionLimit={selectionLimit}
           />
           : 
           <Stage3 

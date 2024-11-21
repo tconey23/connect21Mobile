@@ -1,46 +1,76 @@
 import { View, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HexButton from './HexButton';
+import { useSpring, animated } from "@react-spring/native";
+import PlayButton from './PlayButton';
 
-const { width, height } = Dimensions.get('window')
+const { width, height } = Dimensions.get('window');
 
 const LandingAnimation = ({ setStartGame, categoryName }) => {
   const [purple] = useState('#c956ff');
-  const [dateToday] = useState(new Date().toDateString())
+  const [dateToday] = useState(new Date().toDateString());
+  const [isSpinning, setIsSpinning] = useState(false);
 
   const titleText = '21Things';
 
-  let animatedHex
-  let animatedButton
+
+  const AnimatedHexContainer = animated(View);
+
+  // Hexagon Spin Animation
+  const spin = useSpring({
+    from: { rotate: "0deg" },
+    to: async (next) => {
+      if (isSpinning) {
+        await next({ rotate: "360deg" }); // Full rotation
+      }
+    },
+    config: {
+      tension: 10,
+      friction: 20,
+    },
+    reset: true,
+    onRest: () => setIsSpinning(false),
+  });
+
+
+
+  // Handle Spin Trigger
+  const handleSpin = () => {
+    setIsSpinning(true); // Trigger hexagon spin
+  };
+
+  useEffect(() => {
+    // Ensure the wobble animation starts immediately on mount
+  }, []);
 
   return (
     <View style={styles.container}>
-      <View style={[styles.hexContainer, animatedHex]}>
-        <TouchableOpacity>
+      {/* HexButton with Spin Animation */}
+      <AnimatedHexContainer
+        style={[styles.hexContainer, { transform: [{ rotate: spin.rotate }] }]}
+      >
+        <TouchableOpacity onPress={handleSpin}>
           <HexButton size={200} />
         </TouchableOpacity>
-      </View>
+      </AnimatedHexContainer>
+
+      {/* Title Text */}
       <View style={styles.titleContainer}>
         {titleText.split('').map((char, i) => (
-          <Text
-            key={i}
-            style={[
-              styles.text
-            ]}
-          >
+          <Text key={i} style={styles.text}>
             {char}
           </Text>
         ))}
       </View>
+
+      {/* Category Wrapper */}
       <View style={styles.categoryWrapper}>
         <Text style={styles.catText}>{categoryName}</Text>
-        <Text style={[styles.catText, {fontSize: 18}]}>{dateToday}</Text>
+        <Text style={[styles.catText, { fontSize: 18 }]}>{dateToday}</Text>
       </View>
-      <View style={animatedButton}>
-        <TouchableOpacity onPress={() => setStartGame(true)} style={[styles.button, {backgroundColor: purple}]}>
-          <Text style={styles.buttonText}>PLAY!</Text>
-        </TouchableOpacity>
-      </View>
+
+      <PlayButton setStartGame={setStartGame}/>
+
     </View>
   );
 };
@@ -54,7 +84,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     marginTop: 10,
-    flex: 1
+    flex: 1,
   },
   text: {
     fontSize: 50,
@@ -67,7 +97,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flexDirection: 'row',
-    paddingVertical: 30
+    paddingVertical: 30,
   },
   hexContainer: {
     width: 200,
@@ -75,7 +105,7 @@ const styles = StyleSheet.create({
     marginTop: 0,
     marginBottom: 50,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   buttonText: {
     fontSize: 20,
@@ -90,10 +120,10 @@ const styles = StyleSheet.create({
   },
   catText: {
     fontSize: 30,
-    width: "100%",
-    textAlign: 'center'
+    width: '100%',
+    textAlign: 'center',
   },
-  categoryWrapper:{
+  categoryWrapper: {
     backgroundColor: 'white',
     height: height * 0.1,
     width: width * 0.85,
@@ -101,6 +131,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'column',
     borderRadius: 20,
-    marginTop: -80
-  }
+    marginTop: -80,
+  },
 });

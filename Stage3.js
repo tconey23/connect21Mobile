@@ -18,7 +18,6 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
   useEffect(() => {
     if(options){
       let fav = options.find((opt) => opt.stage === 3)
-      console.log(fav)
       setFavorite(fav)
     }
   }, [options])
@@ -54,7 +53,6 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
   };
 
   useEffect(() => {
-    console.log(share)
     if(share){
       takeScreenshotAndShare()
     }
@@ -88,7 +86,7 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
               const stageA = a.stage ?? Infinity;
               const stageB = b.stage ?? Infinity;
 
-              return stageB - stageA; 
+              return stageA - stageB; 
             })
             .map((opt, i) => {
               if (i < 21) {

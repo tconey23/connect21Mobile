@@ -48,7 +48,7 @@ export default function App() {
       if (data) { 
         console.log(Object.entries(data)[1][1].date)
 
-        let todaysCategory = Object.entries(data).find((c) => c[1].date === today)
+        let todaysCategory = Object.entries(data).find((c) => c[1].date === '12/02/2024')
 
         console.log(todaysCategory[1].prompts.map((p) => ({
               title: p,

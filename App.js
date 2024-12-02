@@ -8,6 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import BetaAlert from './BetaAlert'
 import HelpPage from './HelpPage'
 import Svg, {Path,} from "react-native-svg"
+import { get, ref, set } from "firebase/database";
+import { database } from './firebase';
 
 const HelpIcon = ({size, setToggleHelp}) => {
   return (
@@ -24,25 +26,48 @@ const { width, height } = Dimensions.get('window');
 export default function App() {
   const [startGame, setStartGame] = useState(false);
   const [categoryName, setCategoryName] = useState('loading');
-  const [prompts, setPrompts] = useState();
+  const [prompts, setPrompts] = useState([]);
   const [playedToday, setPlayedToday] = useState(false);
   const [betaReset, setBetaReset] = useState(false)
   const [display, setDisplay] = useState('landing')
   const [toggleHelp, setToggleHelp] = useState(false)
+  const [author, setAuthor] = useState(null)
+ 
 
   const fetchOptions = async () => {
     try {
-      const res = await fetch('https://raw.githubusercontent.com/tconey23/connect21_be/refs/heads/main/ServerData/gptResp.json');
+      const res = await fetch('https://secure-beach-74758-ab0619edd0f3.herokuapp.com/api/categories');
       const data = await res.json();
-      if (data) {
-        setPrompts(Object.values(data)[0].map((opt) => ({
-          title: opt,
+
+      const today = new Intl.DateTimeFormat('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+      }).format(new Date()); 
+
+      if (data) { 
+        console.log(Object.entries(data)[1][1].date)
+
+        let todaysCategory = Object.entries(data).find((c) => c[1].date === today)
+
+        console.log(todaysCategory[1].prompts.map((p) => ({
+              title: p,
+              stage: 0,
+              color: '#d4d4d4',
+              canSelect: true,
+              selected: false
+        }))) 
+
+        setPrompts(todaysCategory[1].prompts.map((p) => ({
+          title: p,
           stage: 0,
           color: '#d4d4d4',
           canSelect: true,
           selected: false
         })))
-        setCategoryName(Object.keys(data)[0]);
+
+      setAuthor(todaysCategory[1].author)
+      setCategoryName(todaysCategory[1].date)
       }
     } catch (error) {
       console.error('Error fetching options:', error);
@@ -136,7 +161,7 @@ export default function App() {
         startGame ?
         <GamePage setPrompts={setPrompts} prompts={prompts} setStartGame={setStartGame} saveDatePlayed={saveDatePlayed}/>
         : 
-        <LandingAnimation categoryName={categoryName} setStartGame={setStartGame} />
+        <LandingAnimation categoryName={categoryName} setStartGame={setStartGame} author={author}/>
       }
       <HelpPage toggleHelp={toggleHelp} setToggleHelp={setToggleHelp} />
     </SafeAreaView>

@@ -10,7 +10,7 @@ const BetaAlert = ({setToggleHelp}) => {
             'We are excited to receive your valuable input. \n\n'+
             'If this is your first time playing 21Things, please review the help page before proceeding.\n\n',
             [
-                { text: 'Skip' },
+                { text: 'PLAY' },
                 { text: 'Help page', onPress: () => setToggleHelp(true) },
             ],
             { cancelable: true }

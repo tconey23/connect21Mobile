@@ -6,7 +6,7 @@ import PlayButton from './PlayButton';
 
 const { width, height } = Dimensions.get('window');
 
-const LandingAnimation = ({ setStartGame, categoryName }) => {
+const LandingAnimation = ({ setStartGame, categoryName, author }) => {
   const [purple] = useState('#c956ff');
   const [dateToday] = useState(new Date().toDateString());
   const [isSpinning, setIsSpinning] = useState(false);
@@ -66,7 +66,7 @@ const LandingAnimation = ({ setStartGame, categoryName }) => {
       {/* Category Wrapper */}
       <View style={styles.categoryWrapper}>
         <Text style={styles.catText}>{categoryName}</Text>
-        <Text style={[styles.catText, { fontSize: 18 }]}>{dateToday}</Text>
+        <Text style={[styles.catText, { fontSize: 18 }]}>{`Created by: ${author}`}</Text>
       </View>
 
       <PlayButton setStartGame={setStartGame}/>

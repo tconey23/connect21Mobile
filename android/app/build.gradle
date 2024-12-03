@@ -93,7 +93,8 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file("C:\\Users\\tom05\\apps\\connect21Mobile\\upload-key.jks")
+            storeFile file('/Users/tomconey/post_turing_projects/connect21Mobile/upload-key.jks')
+            //storeFile file("C:\\Users\\tom05\\apps\\connect21Mobile\\upload-key.jks")
             storePassword "mADDIEmAX1987"
             keyAlias "upload-key"
             keyPassword "mADDIEmAX1987"

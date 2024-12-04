@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, ScrollView, Text, TextInput, StyleSheet, Dimensions } from 'react-native';
+import { View, ScrollView, Text, TextInput, StyleSheet, Dimensions, Keyboard } from 'react-native';
 import { captureScreen } from "react-native-view-shot";
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
@@ -15,6 +15,50 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
   const [favorite, setFavorite] = useState('this');
   const [userText, setUserText] = useState('');
   const [isScreenshot, setIsScreenshot] = useState(false)
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [keyboardWasOpened, setKeyboardWasOpened] = useState(false)
+  const scrollViewRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  };
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    // Cleanup subscriptions on unmount
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if(isKeyboardVisible){
+      scrollToBottom()
+      setKeyboardWasOpened(true)
+    } 
+
+    if(!isKeyboardVisible && keyboardWasOpened && share) {
+      setTimeout(() => {        
+        captureScreen({
+          format: "jpg",
+          quality: 0.8,
+        }).then(
+          (uri) => takeScreenshotAndShare(uri),
+          (error) => console.error("Oops, snapshot failed", error)
+        );
+      }, 200);
+    }
+  }, [isKeyboardVisible, keyboardWasOpened, share])
 
   const takeScreenshotAndShare = async (uri) => {
     const filePath = `${RNFS.DocumentDirectoryPath}/${Date.now()}_screenshot.png`;
@@ -40,24 +84,6 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
       setFavorite(fav);
     }
   }, [options]);
-
-  useEffect(() => {
-    if(share){
-      captureScreen({
-        format: "jpg",
-        quality: 0.8,
-      }).then(
-        (uri) => takeScreenshotAndShare(uri),
-        (error) => console.error("Oops, snapshot failed", error)
-      );
-    }
-  }, [share]);
-
-  useEffect(() => {
-    if(isScreenshot){
-      takeScreenshotAndShare()
-    }
-  }, [isScreenshot, userText])
 
   const handleTextLength = (text) => {
     setTextLength(text.length);
@@ -85,7 +111,8 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
         ]}
       >
         <ScrollView
-          onContentSizeChange={(w, h) => setContentHeight(h)} // Track total content height
+          ref={scrollViewRef}
+          onContentSizeChange={(w, h) => setContentHeight(h)}
         >
           <View style={isScreenshot ? styles.screenshotStyle.wrapper : styles.normalStyle.wrapper}>
             {options &&

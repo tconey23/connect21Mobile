@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { View, ScrollView, Text, TextInput, StyleSheet, Dimensions } from 'react-native';
-import { captureRef } from 'react-native-view-shot';
+import { captureScreen } from "react-native-view-shot";
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import Selection from './Selection';
@@ -10,35 +10,16 @@ const { width } = Dimensions.get('window');
 const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelectionLimit, saveDatePlayed, share }) => {
   const viewRef = useRef(null);
   const [contentHeight, setContentHeight] = useState(0);
+  const [scale, setScale] = useState(1)
   const [textLength, setTextLength] = useState(0);
   const [favorite, setFavorite] = useState('this');
   const [userText, setUserText] = useState('');
-  const [scale, setScale] = useState(0.85)
+  const [isScreenshot, setIsScreenshot] = useState(false)
 
-  useEffect(() => {
-    if (options) {
-      let fav = options.find((opt) => opt.stage === 3);
-      setFavorite(fav);
-    }
-  }, [options]);
-
-  const takeScreenshotAndShare = async () => {
-    if (!viewRef.current) {
-      console.warn('View reference is not set');
-      return;
-    }
-
+  const takeScreenshotAndShare = async (uri) => {
+    const filePath = `${RNFS.DocumentDirectoryPath}/${Date.now()}_screenshot.png`;
+    await RNFS.copyFile(uri, filePath);
     try {
-      const uri = await captureRef(viewRef.current, {
-        format: 'png',
-        quality: 0.8,
-        width: width * scale, // Adjust width to include scaling
-        height: contentHeight * scale, // Adjust height to include scaling
-      });
-
-      const filePath = `${RNFS.DocumentDirectoryPath}/${Date.now()}_screenshot.png`;
-      await RNFS.copyFile(uri, filePath);
-
       await Share.open({
         title: 'Share screenshot',
         url: `file://${filePath}`,
@@ -54,11 +35,29 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
   };
 
   useEffect(() => {
-    if (share) {
-      setScale(0.75)
-      takeScreenshotAndShare();
+    if (options) {
+      let fav = options.find((opt) => opt.stage === 3);
+      setFavorite(fav);
+    }
+  }, [options]);
+
+  useEffect(() => {
+    if(share){
+      captureScreen({
+        format: "jpg",
+        quality: 0.8,
+      }).then(
+        (uri) => takeScreenshotAndShare(uri),
+        (error) => console.error("Oops, snapshot failed", error)
+      );
     }
   }, [share]);
+
+  useEffect(() => {
+    if(isScreenshot){
+      takeScreenshotAndShare()
+    }
+  }, [isScreenshot, userText])
 
   const handleTextLength = (text) => {
     setTextLength(text.length);
@@ -78,18 +77,17 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
       }]}
     >
       <View
-        ref={viewRef}
         style={[
           styles.screenshot,
           {
-            transform: [{ scale }], // Apply scaling
+            transform: [{ scale }],
           },
         ]}
       >
         <ScrollView
           onContentSizeChange={(w, h) => setContentHeight(h)} // Track total content height
         >
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', marginBottom: 40 }}>
+          <View style={isScreenshot ? styles.screenshotStyle.wrapper : styles.normalStyle.wrapper}>
             {options &&
               favorite &&
               options
@@ -122,16 +120,18 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
             <Text style={{ marginTop: 0, textAlign: 'center' }}>{`${textLength}/180`}</Text>
           </View>
           <View style={styles.textInput}>
-            <TextInput
+            {favorite && favorite.title && <TextInput
               multiline
               placeholder={`Write something about '${favorite.title}'`}
               autoFocus={false}
               style={{ maxWidth: '85%', color: 'black', height: 'auto' }}
               maxLength={180}
               onChangeText={(text) => handleTextLength(text)}
-            />
+              value={userText}
+            />}
           </View>
         </ScrollView>
+
       </View>
     </View>
   );
@@ -167,4 +167,26 @@ const styles = StyleSheet.create({
     color: 'black',
     marginBottom: 0,
   },
+  screenshotStyle: {
+    prompts:{
+
+    }, 
+    wrapper: {
+      flexDirection: 'row', 
+      flexWrap: 'wrap', 
+      justifyContent: 'flex-start', 
+      marginBottom: 40
+    }
+  },
+  normalStyle: {
+    prompts: {
+
+    }, 
+    wrapper: {
+      flexDirection: 'row', 
+      flexWrap: 'wrap', 
+      justifyContent: 'flex-start', 
+      marginBottom: 40
+    }
+  }
 });

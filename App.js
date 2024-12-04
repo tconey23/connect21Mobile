@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View, SafeAreaView, Platform, Dimensions, KeyboardAvoidingView} from 'react-native';
+import { StyleSheet, TouchableOpacity, View, SafeAreaView, Platform, Dimensions, KeyboardAvoidingView, Text} from 'react-native';
 import { useState, useEffect } from 'react';
 import GamePage from './GamePage';
 import UserPrompt from './UserPrompt';
@@ -154,7 +154,8 @@ export default function App() {
       >
     <SafeAreaView style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'column'}}>
       {playedToday && <UserPrompt setStartGame={setStartGame} playedToday={playedToday} setBetaReset={setBetaReset}/>}
-      <View style={{elevation: 20, width: width, height: '7%', alignItems: 'flex-end', padding: 10, marginBottom: -23}}>
+      <View style={{elevation: 20, width: width, height: '7%', alignItems: 'flex-end', padding: 20, marginBottom: -10, marginTop: -10, flexDirection: 'row'}}>
+        <Text style={{color: 'white', fontSize: 10, width: '90%'}}>Beta version 1.34</Text>
         <HelpIcon setToggleHelp={setToggleHelp} size={20}/>
       </View>
       {

@@ -106,6 +106,8 @@ const Selection = ({ setSelectionLimit, options, option, currentStage, setPrompt
           justifyContent: 'center',
           opacity: optionOpacity,
           elevation: 10,
+          width: '100%',
+          height: '100%',
           transform: [{ rotate: props.rotate }]
         }}
       >

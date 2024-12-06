@@ -44,7 +44,7 @@ const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
       {currentStage === 0 && <Text style={styles.headerText}>Select the 6 that most boost your mood!</Text>}
       {currentStage === 1 && <Text style={styles.headerText}>Choose your Trifecta!</Text>}
       {currentStage === 2 && <Text style={styles.headerText}>And your mood-boostiest?!</Text>}
-      {currentStage < 3 && <View style={{flexDirection: 'row-reverse'}}>{hexagons}</View>}
+      {currentStage < 3 && <View style={{flexDirection: 'row-reverse'}}>{hexagons}</View>} 
       {currentStage < 3 ? 
           <Stage
               key={currentStage}
@@ -97,7 +97,7 @@ const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
           <Text style={styles.text}>BACK</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.button, {backgroundColor: purple}]} onPress={() => setShare(true)}>
-          <Text style={styles.buttonText}>SHARE</Text>
+          <Text style={styles.buttonText}>SHARE</Text> 
         </TouchableOpacity>
         </>
         }

@@ -1,5 +1,6 @@
 import { StyleSheet, TouchableOpacity, View, SafeAreaView, Platform, Dimensions, KeyboardAvoidingView, Text} from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import AccountInfo from './AccountInfo'
 import GamePage from './GamePage';
 import UserPrompt from './UserPrompt';
 import React from 'react';
@@ -8,8 +9,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import BetaAlert from './BetaAlert'
 import HelpPage from './HelpPage'
 import Svg, {Path,} from "react-native-svg"
-import { get, ref, set } from "firebase/database";
-import { database } from './firebase';
 
 const HelpIcon = ({size, setToggleHelp}) => {
   return (
@@ -21,18 +20,23 @@ const HelpIcon = ({size, setToggleHelp}) => {
   )
 }
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window')
 
 export default function App() {
   const [startGame, setStartGame] = useState(false);
   const [categoryName, setCategoryName] = useState('loading');
   const [prompts, setPrompts] = useState([]);
   const [playedToday, setPlayedToday] = useState(false);
-  const [betaReset, setBetaReset] = useState(false)
-  const [display, setDisplay] = useState('landing')
-  const [toggleHelp, setToggleHelp] = useState(false)
-  const [author, setAuthor] = useState(null)
- 
+  const [betaReset, setBetaReset] = useState(false);
+  const [display, setDisplay] = useState('landing');
+  const [toggleHelp, setToggleHelp] = useState(false);
+  const [author, setAuthor] = useState(null);
+  const [betaVersion] = useState('1.36');
+  const [displayName, setDisplayName] = useState('');
+  const [toggleAccount, setToggleAccount] = useState(true)
+  const [adjectives, setAdj] = useState(null)
+  const [nouns, setNoun] = useState(null)
+
 
   const fetchOptions = async () => {
     try {
@@ -43,31 +47,19 @@ export default function App() {
         month: '2-digit',
         day: '2-digit',
         year: 'numeric',
-      }).format(new Date()); 
+      }).format(new Date());
 
-      if (data) { 
-        console.log(Object.entries(data)[1][1].date)
-
-        let todaysCategory = Object.entries(data).find((c) => c[1].date === today)
-
-        console.log(todaysCategory[1].prompts.map((p) => ({
-              title: p,
-              stage: 0,
-              color: '#d4d4d4',
-              canSelect: true,
-              selected: false
-        }))) 
-
+      if (data) {
+        const todaysCategory = Object.entries(data).find((c) => c[1].date === today);
         setPrompts(todaysCategory[1].prompts.map((p) => ({
           title: p,
           stage: 0,
           color: '#d4d4d4',
           canSelect: true,
-          selected: false
-        })))
-
-      setAuthor(todaysCategory[1].author)
-      setCategoryName(todaysCategory[1].date)
+          selected: false,
+        })));
+        setAuthor(todaysCategory[1].author);
+        setCategoryName(todaysCategory[1].date);
       }
     } catch (error) {
       console.error('Error fetching options:', error);
@@ -82,16 +74,10 @@ export default function App() {
   };
 
   const saveDatePlayed = async (date) => {
-    let today 
-    if(date){
-      today = date
-    } else {
-      today = new Date().toDateString();
-    } 
-    
+    const today = date || new Date().toDateString();
     try {
       await AsyncStorage.setItem('playedToday', today);
-      checkIfPlayedToday()
+      checkIfPlayedToday();
     } catch (error) {
       console.error('Error saving date:', error);
     }
@@ -99,19 +85,18 @@ export default function App() {
 
   const resetGame = async () => {
     const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1); // Set the date to yesterday
-    const formattedYesterday = yesterday.toDateString(); // Format it as a string
-    
+    yesterday.setDate(yesterday.getDate() - 1);
+    const formattedYesterday = yesterday.toDateString();
+
     try {
-      await AsyncStorage.setItem('playedToday', formattedYesterday); // Save yesterday's date
+      await AsyncStorage.setItem('playedToday', formattedYesterday);
       checkIfPlayedToday();
-      setBetaReset(false)
-      setStartGame(false)
+      setBetaReset(false);
+      setStartGame(false);
     } catch (error) {
       console.error('Error resetting game date:', error);
     }
   };
-
 
   const getDatePlayed = async () => {
     try {
@@ -122,73 +107,130 @@ export default function App() {
     }
   };
 
+  const getAdjNoun = async () => {
+    const adjRes = await fetch(`https://random-word-form.herokuapp.com/random/adjective?count=10`);
+    const adjData = await adjRes.json()
+    adjData && setAdj(adjData)
+
+    const animalRes =  await fetch(`https://random-word-form.herokuapp.com/random/animal?count=10`);
+    const animalData = await animalRes.json()
+    animalData && setNoun(animalData) 
+
+  }
+ 
+  useEffect(() => {
+    getAdjNoun()
+  }, [])
+  
+  const generateDisplayName = () => {
+    const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+    return `${randomAdjective}-${randomNoun}-${Date.now()}`;
+  };
+
+  const DISPLAY_NAME_KEY = 'userDisplayName';
+
+  const getDisplayName = async () => {
+    try {
+      const storedName = await AsyncStorage.getItem(DISPLAY_NAME_KEY);
+      if (storedName) {
+        return storedName;
+      } else {
+        const newDisplayName = generateDisplayName();
+        await AsyncStorage.setItem(DISPLAY_NAME_KEY, newDisplayName);
+        setDisplayName(newDisplayName)
+        return newDisplayName;
+      }
+    } catch (error) {
+      console.error('Error managing display name:', error);
+      return null;
+    }
+  };
+
+  const resetDisplayName = async () => {
+    console.log("new username")
+    try {
+      await AsyncStorage.removeItem(DISPLAY_NAME_KEY); // Remove the display name
+      getDisplayName()
+    } catch (error) {
+      console.error('Error resetting display name:', error);
+    }
+  };
 
   useEffect(() => {
-    fetchOptions()
-    checkIfPlayedToday()
-    playedToday && setDisplay('played')
+    const initializeDisplayName = async () => {
+      const name = await getDisplayName();
+      setDisplayName(name);
+      console.log('User Display Name:', name);
+    };
+
+    fetchOptions();
+    checkIfPlayedToday();
+    initializeDisplayName();
+    playedToday && setDisplay('played');
   }, [playedToday]);
 
   useEffect(() => {
-    if(startGame){
-      setDisplay('game')
+    if (startGame) {
+      setDisplay('game');
     } else {
-      setDisplay('landing')
-      fetchOptions()
+      setDisplay('landing');
+      fetchOptions();
     }
-  }, [startGame])
+  }, [startGame]);
 
   useEffect(() => {
-    if(betaReset) {
-      resetGame()
+    if (betaReset) {
+      resetGame();
     }
-  }, [betaReset, toggleHelp])
+  }, [betaReset, toggleHelp]);
 
   return (
-    <View style={{flex:1}}>
-      <BetaAlert setToggleHelp={setToggleHelp}/>
-    <KeyboardAvoidingView
-      style={{height: '100%',justifyContent: 'flex-start'}}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+    <View style={{ flex: 1 }}>
+      <BetaAlert setToggleHelp={setToggleHelp} />
+      <KeyboardAvoidingView
+        style={{ height: '100%', justifyContent: 'flex-start' }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
       >
-    <SafeAreaView style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'column'}}>
-      {playedToday && <UserPrompt setStartGame={setStartGame} playedToday={playedToday} setBetaReset={setBetaReset}/>}
-      <View style={{elevation: 20, width: width, height: '7%', alignItems: 'flex-end', padding: 20, marginBottom: -10, marginTop: -10, flexDirection: 'row'}}>
-        <Text style={{color: 'white', fontSize: 10, width: '90%'}}>Beta version 1.35</Text>
-        <HelpIcon setToggleHelp={setToggleHelp} size={20}/>
-      </View>
-      {
-        startGame ?
-        <GamePage setPrompts={setPrompts} prompts={prompts} setStartGame={setStartGame} saveDatePlayed={saveDatePlayed}/>
-        : 
-        <LandingAnimation categoryName={categoryName} setStartGame={setStartGame} author={author}/>
-      }
-      <HelpPage toggleHelp={toggleHelp} setToggleHelp={setToggleHelp} />
-    </SafeAreaView>
-</KeyboardAvoidingView>
-</View>
+        <SafeAreaView style={{ flex: 1, justifyContent: 'flex-start', flexDirection: 'column' }}>
+          {playedToday && (
+            <UserPrompt setStartGame={setStartGame} playedToday={playedToday} setBetaReset={setBetaReset} />
+          )}
+          <View
+            style={{
+              elevation: 20,
+              width: width,
+              height: '7%',
+              alignItems: 'flex-end',
+              padding: 20,
+              marginBottom: -10,
+              marginTop: -10,
+              flexDirection: 'row',
+            }}
+          >
+            <Text style={{ color: 'white', fontSize: 10, width: '90%' }}>{betaVersion}</Text>
+            <HelpIcon setToggleHelp={setToggleHelp} size={20} />
+          </View>
+          <TouchableOpacity onPress={() => setToggleAccount(prev => !prev)}>
+            <Text style={{ fontSize: 10, color: 'white', textAlign: 'center', marginBottom: 10 }}>
+              {displayName}
+            </Text>
+          </TouchableOpacity>
+          {startGame ? (
+            <GamePage
+              setPrompts={setPrompts}
+              prompts={prompts}
+              setStartGame={setStartGame}
+              saveDatePlayed={saveDatePlayed}
+            />
+          ) : (
+            <LandingAnimation categoryName={categoryName} setStartGame={setStartGame} author={author} />
+          )}
+          <HelpPage toggleHelp={toggleHelp} setToggleHelp={setToggleHelp} />
+          <AccountInfo resetDisplayName={resetDisplayName} toggleAccount={toggleAccount} setToggleAccount={setToggleAccount} displayName={displayName}/>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  pageContainer: {
-    height: '93%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: width
-  },
-  text: {
-    fontSize: 20,
-    fontFamily: 'Fredoka',
-    fontWeight: '500',
-  },
-  button: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    backgroundColor: '#BDFDFF',
-    padding: 10,
-    borderRadius: 5,
-    elevation: 15,
-  },
-});

@@ -42,6 +42,7 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
   }, []);
 
   useEffect(() => {
+
     if(isKeyboardVisible){
       scrollToBottom()
       setKeyboardWasOpened(true)
@@ -58,6 +59,12 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
         );
       }, 200);
     }
+
+    if(isKeyboardVisible && share){
+      Keyboard.dismiss()
+    }
+
+
   }, [isKeyboardVisible, keyboardWasOpened, share])
 
   const takeScreenshotAndShare = async (uri) => {
@@ -190,7 +197,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 10,
     width: width,
-    alignItems: 'center',
+    alignItems: 'center', 
     color: 'black',
     marginBottom: 0,
   },

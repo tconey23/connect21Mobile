@@ -203,20 +203,25 @@ export default function App() {
               width: width,
               height: '7%',
               alignItems: 'flex-end',
-              padding: 20,
-              marginBottom: -10,
-              marginTop: -10,
               flexDirection: 'row',
+              backgroundColor: '#3a65ba',
+              elevation: 30
             }}
           >
-            <Text style={{ color: 'white', fontSize: 10, width: '90%' }}>{betaVersion}</Text>
-            <HelpIcon setToggleHelp={setToggleHelp} size={20} />
+            <View style={{width: '25%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+              <Text style={{ color: 'white', fontSize: 12}}>{`Beta v${betaVersion}`}</Text>
+            </View>
+            <View style={{width: '50%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+              <TouchableOpacity onPress={() => setToggleAccount(prev => !prev)}>
+                <Text style={{ fontSize: 12, color: 'white', textAlign: 'center', marginBottom: 10 }}>
+                  {displayName}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{width: '25%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+              <HelpIcon setToggleHelp={setToggleHelp} size={20} />
+            </View>
           </View>
-          <TouchableOpacity onPress={() => setToggleAccount(prev => !prev)}>
-            <Text style={{ fontSize: 10, color: 'white', textAlign: 'center', marginBottom: 10 }}>
-              {displayName}
-            </Text>
-          </TouchableOpacity>
           {startGame ? (
             <GamePage
               setPrompts={setPrompts}

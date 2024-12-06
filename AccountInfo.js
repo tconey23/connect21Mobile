@@ -30,21 +30,24 @@ const AccountInfo = ({toggleAccount, setToggleAccount, displayName, resetDisplay
             <TouchableOpacity style={styles.button} onPress={() => resetDisplayName()}><Text>Refresh Username</Text></TouchableOpacity>
         </View>
         <View>
-        <TouchableOpacity style={styles.button} onPress={() => setToggleCreateAccount(prev => !prev)}><Text>Create Account</Text></TouchableOpacity>
-    {toggleCreateAccount &&
-        <View>
-            <Text>Update user name</Text>
-            <TextInput key={displayName} style={styles.textInput} placeholder={displayName} placeholderTextColor={'grey'}></TextInput>
+        {/* <TouchableOpacity style={styles.button} onPress={() => setToggleCreateAccount(prev => !prev)}><Text>Create Account</Text></TouchableOpacity> */}
+    {/* {toggleCreateAccount &&
+        <View style={{width: '100%', justifyContent: 'center', alignItems: 'flex-start', padding: 20}}>
+            <Text style={{width: '75%', paddingBottom: 1, paddingTop: 3}}>Update Username</Text>
+            <TextInput style={styles.textInput} placeholder={displayName} placeholderTextColor={'grey'}></TextInput>
 
-            <Text>Create Password</Text>
-            <TextInput key={displayName} style={styles.textInput} placeholder={'password'} placeholderTextColor={'grey'}></TextInput>
+            <Text style={{width: '75%', paddingBottom: 1, paddingTop: 3}}>Email Address</Text>
+            <TextInput style={styles.textInput} placeholder={'email address'} placeholderTextColor={'grey'}></TextInput>
 
-            <Text>Confirm Password</Text>
-            <TextInput key={displayName} style={styles.textInput} placeholder={'password'} placeholderTextColor={'grey'}></TextInput>
+            <Text style={{width: '75%', paddingBottom: 1, paddingTop: 3}}>Create Password</Text>
+            <TextInput style={styles.textInput} placeholder={'password'} placeholderTextColor={'grey'}></TextInput>
+
+            <Text style={{width: '75%', paddingBottom: 1, paddingTop: 3}}>Confirm Password</Text>
+            <TextInput style={styles.textInput} placeholder={'password'} placeholderTextColor={'grey'}></TextInput>
 
             <TouchableOpacity style={styles.button} onPress={() => handleCreateAccount()}><Text>Create</Text></TouchableOpacity>
         </View>        
-    }
+    } */}
 
         <TouchableOpacity style={styles.button} onPress={() => setToggleAccount(false)}><Text>Close</Text></TouchableOpacity>
         </View>
@@ -78,14 +81,14 @@ const styles = StyleSheet.create({
     },
     textInput: {
         height: 50,
+        width: '75%',
         backgroundColor: 'white',
-        paddingHorizontal: 0,
+        paddingHorizontal: 6,
         borderColor: 'black',
         borderStyle: 'solid',
         borderWidth: 1,
         borderRadius: 10,
         elevation: 10,
-        width: width,
         alignItems: 'center',
         color: 'black',
         marginBottom: 0,
@@ -95,6 +98,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 5,
         marginHorizontal: 25,
+        marginVertical: 5,
         elevation: 30,
       },
       buttonContainer: {

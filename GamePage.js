@@ -1,25 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
 import { PixelRatio } from 'react-native';
-import Stage from './Stage';
 import Hexagon from './Hexagon';
+import Stage from './Stage'
 import Stage3 from './Stage3';
 
 const fontSize = PixelRatio.getFontScale() * 25;
 const { width, height } = Dimensions.get('window')
 
-const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
+const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed, displayName }) => {
 
   const [selectionCount, setSelectionCount] = useState(0);
   const [currentStage, setCurrentStage] = useState(0);
   const [selectionLimit, setSelectionLimit] = useState(6);
   const [hexagons, setHexagons] = useState([])
-  const [purple] = useState('#c956ff')
+  const [purple] = useState('#D32AF5') 
   const [share, setShare] = useState(false)
 
   useEffect(() => {
     setSelectionCount(0);
   }, []);
+
+  useEffect(() => {
+    if(share){
+      setTimeout(() => {
+        setShare(false)
+      }, 2000);
+    }
+  }, [share])
 
   useEffect(() => {
     let hexArray = []
@@ -65,6 +73,7 @@ const GamePage = ({ setPrompts, setStartGame, prompts, saveDatePlayed }) => {
             setSelectionLimit={setSelectionLimit}
             saveDatePlayed={saveDatePlayed}
             share={share}
+            displayName={displayName}
           />
         }
       <View style={styles.buttonContainer}>

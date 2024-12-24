@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { G, Path, Defs, ClipPath } from "react-native-svg"
+import pallette from './pallette';
 
 const Hexagon = ({state, currentStage}) => {
 
@@ -9,11 +10,11 @@ const Hexagon = ({state, currentStage}) => {
   const getStageColor = (stageNum) => {
     switch (stageNum) {
       case 0:
-        return '#bd80ff'
+        return pallette.purple
       case 1:
-        return 'yellow'
+        return pallette.yellow
       case 2:
-        return 'green'     
+        return pallette.green     
     }
   }
 

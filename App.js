@@ -1,5 +1,5 @@
-import { StyleSheet, TouchableOpacity, View, SafeAreaView, Platform, Dimensions, KeyboardAvoidingView, Text} from 'react-native';
-import { useState, useEffect, useRef } from 'react';
+import { TouchableOpacity, View, SafeAreaView, Platform, Dimensions, KeyboardAvoidingView, Text} from 'react-native';
+import { useState, useEffect} from 'react';
 import AccountInfo from './AccountInfo'
 import GamePage from './GamePage';
 import UserPrompt from './UserPrompt';
@@ -8,17 +8,8 @@ import LandingAnimation from './LandingAnimation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BetaAlert from './BetaAlert'
 import HelpPage from './HelpPage'
-import Svg, {Path,} from "react-native-svg"
-
-const HelpIcon = ({size, setToggleHelp}) => {
-  return (
-    <TouchableOpacity onPress={() => setToggleHelp(true)} >
-      <Svg xmlns="http://www.w3.org/2000/svg" id="Filled" viewBox="0 0 24 24" width={`${size}px`} height={`${size}px`}>
-        <Path fill={'#c956ff'} d="M12,0A12,12,0,1,0,24,12,12.013,12.013,0,0,0,12,0Zm0,20a1,1,0,1,1,1-1A1,1,0,0,1,12,20Zm1.93-7.494A1.982,1.982,0,0,0,13,14.257V15a1,1,0,0,1-2,0v-.743a3.954,3.954,0,0,1,1.964-3.5,2,2,0,0,0,1-2.125,2.024,2.024,0,0,0-1.6-1.595A2,2,0,0,0,10,9,1,1,0,0,1,8,9a4,4,0,1,1,5.93,3.505Z"/>
-      </Svg>
-    </TouchableOpacity>
-  )
-}
+import {Icon} from '@rneui/themed'
+import Friends from './Friends'
 
 const { width, height } = Dimensions.get('window')
 
@@ -30,13 +21,16 @@ export default function App() {
   const [betaReset, setBetaReset] = useState(false);
   const [display, setDisplay] = useState('landing');
   const [toggleHelp, setToggleHelp] = useState(false);
+  const [toggleFriends, setToggleFriends] = useState(false);
   const [author, setAuthor] = useState(null);
-  const [betaVersion] = useState('1.36');
+  const [betaVersion] = useState('1.37');
   const [displayName, setDisplayName] = useState('');
-  const [toggleAccount, setToggleAccount] = useState(true)
+  const [toggleAccount, setToggleAccount] = useState(false)
   const [adjectives, setAdj] = useState(null)
   const [nouns, setNoun] = useState(null)
-
+  const [gameDate, setGameDate] = useState(null)
+  const [devProd, setDevProd] = useState('prod')
+  const [userData, setUserData] = useState()
 
   const fetchOptions = async () => {
     try {
@@ -48,9 +42,16 @@ export default function App() {
         day: '2-digit',
         year: 'numeric',
       }).format(new Date());
+      
+       if (data) {
 
-      if (data) {
-        const todaysCategory = Object.entries(data).find((c) => c[1].date === today);
+        let todaysCategory
+
+        if(gameDate){
+          todaysCategory = Object.entries(data).find((c) => c[1].date === gameDate);
+        } else {
+          todaysCategory = Object.entries(data).find((c) => c[1].date === today)
+        }
         setPrompts(todaysCategory[1].prompts.map((p) => ({
           title: p,
           stage: 0,
@@ -62,12 +63,46 @@ export default function App() {
         setCategoryName(todaysCategory[1].date);
       }
     } catch (error) {
-      console.error('Error fetching options:', error);
+      console.error('Error fetching options:', error); 
     }
   };
 
+
+  const handleDeepLink = (event) => {
+    const url = event.url;
+    const params = new URLSearchParams(url.split('?')[1]); // Extract query parameters
+    const path = params.get('path'); // Extract the "path" parameter
+
+    if (path) {
+      // Navigate to the GameDetails screen with the extracted path
+      navigation.navigate('GameDetails', { gamePath: path });
+    }
+  };
+  
+
+  const fetchUserData = async (path) => {
+    let endpoint
+    devProd === 'dev' ? endpoint = 'https://secure-beach-74758-ab0619edd0f3.herokuapp.com' : endpoint = 'http://10.0.0.155:5001' 
+    try {
+      const res = await fetch(`${endpoint}/api/getdbpath?path=${path}`);
+      const data = await res.json();
+      
+       if (data) {
+        return Object.keys(data)
+       }
+    } catch (error) { 
+      console.error('Error fetching options:', error);   
+    }
+  }
+
+  useEffect(() => {
+    if(gameDate){
+      fetchOptions()
+    }
+  }, [gameDate])
+
   const checkIfPlayedToday = async () => {
-    const lastPlayedDate = await getDatePlayed();
+    const lastPlayedDate = await getDatePlayed(); 
     const today = new Date().toDateString();
 
     setPlayedToday(lastPlayedDate === today);
@@ -150,7 +185,7 @@ export default function App() {
   const resetDisplayName = async () => {
     console.log("new username")
     try {
-      await AsyncStorage.removeItem(DISPLAY_NAME_KEY); // Remove the display name
+      await AsyncStorage.removeItem(DISPLAY_NAME_KEY);
       getDisplayName()
     } catch (error) {
       console.error('Error resetting display name:', error);
@@ -161,7 +196,6 @@ export default function App() {
     const initializeDisplayName = async () => {
       const name = await getDisplayName();
       setDisplayName(name);
-      console.log('User Display Name:', name);
     };
 
     fetchOptions();
@@ -183,10 +217,19 @@ export default function App() {
     if (betaReset) {
       resetGame();
     }
-  }, [betaReset, toggleHelp]);
+    if (toggleFriends) {
+      const fetchData = async () => {
+        const users = await fetchUserData('users/');
+        console.log(users);
+        setUserData(users);
+      };
+      fetchData();
+    }
+  }, [betaReset, toggleHelp, toggleFriends]);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View 
+      style={{ flex: 1 }}>
       <BetaAlert setToggleHelp={setToggleHelp} />
       <KeyboardAvoidingView
         style={{ height: '100%', justifyContent: 'flex-start' }}
@@ -211,29 +254,40 @@ export default function App() {
             <View style={{width: '25%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
               <Text style={{ color: 'white', fontSize: 12}}>{`Beta v${betaVersion}`}</Text>
             </View>
-            <View style={{width: '50%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{width: '40%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
               <TouchableOpacity onPress={() => setToggleAccount(prev => !prev)}>
                 <Text style={{ fontSize: 12, color: 'white', textAlign: 'center', marginBottom: 10 }}>
                   {displayName}
                 </Text>
               </TouchableOpacity>
             </View>
-            <View style={{width: '25%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
-              <HelpIcon setToggleHelp={setToggleHelp} size={20} />
+
+            <View style={{width: '20%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+              <TouchableOpacity onPress={() => setToggleFriends(true)}>
+                <Icon name='users' type='font-awesome'/>
+              </TouchableOpacity>
+            </View>
+
+            <View style={{width: '20%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+            <TouchableOpacity onPress={() => setToggleHelp(true)}>
+                <Icon name='help' type='material'/>
+              </TouchableOpacity>
             </View>
           </View>
-          {startGame ? (
+          {startGame ? ( 
             <GamePage
               setPrompts={setPrompts}
               prompts={prompts}
               setStartGame={setStartGame}
               saveDatePlayed={saveDatePlayed}
+              displayName={displayName}
             />
           ) : (
-            <LandingAnimation categoryName={categoryName} setStartGame={setStartGame} author={author} />
+            <LandingAnimation gameDate={gameDate} setGameDate={setGameDate} categoryName={categoryName} setStartGame={setStartGame} author={author} />
           )}
+          <Friends fetchUserData={fetchUserData} devProd={devProd} userData={userData} toggleFriends={toggleFriends} setToggleFriends={setToggleFriends} />
           <HelpPage toggleHelp={toggleHelp} setToggleHelp={setToggleHelp} />
-          <AccountInfo resetDisplayName={resetDisplayName} toggleAccount={toggleAccount} setToggleAccount={setToggleAccount} displayName={displayName}/>
+          <AccountInfo devProd={devProd} resetDisplayName={resetDisplayName} toggleAccount={toggleAccount} setToggleAccount={setToggleAccount} displayName={displayName}/>
         </SafeAreaView>
       </KeyboardAvoidingView>
     </View>

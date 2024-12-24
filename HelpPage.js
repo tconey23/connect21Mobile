@@ -134,11 +134,13 @@ const styles = StyleSheet.create({
     pageContainer: {
         width: width,
         height: height,
+        color: 'black'
     },
     headerText: {
         textAlign: 'center',
         fontSize: 30,
         fontFamily: 'Fredoka',
+        color: 'black'
     },
     header: {
         justifyContent: 'center',
@@ -148,6 +150,7 @@ const styles = StyleSheet.create({
     descriptionText: {
         paddingVertical: 10,
         textAlign: 'center',
+        color: 'black'
     },
     descriptionContainer: {
         padding: 20,

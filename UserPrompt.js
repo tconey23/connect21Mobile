@@ -74,13 +74,16 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         padding: 20,
         borderRadius: 10,
-        elevation: 20
+        elevation: 20,
+        color: 'black'
     },
     text: {
-        textAlign: 'center'
+        textAlign: 'center',
+        color: 'black'
     },
     buttonText: {
-        textAlign: 'center'
+        textAlign: 'center',
+        color: 'black'
       },
       button: {
         width: 50,
@@ -94,5 +97,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center', 
+        color: 'black'
       }
 })

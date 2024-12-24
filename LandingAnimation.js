@@ -3,12 +3,11 @@ import React, { useState, useEffect } from 'react';
 import HexButton from './HexButton';
 import { useSpring, animated } from "@react-spring/native";
 import PlayButton from './PlayButton';
+import DatePicker from './components/DatePicker';
 
 const { width, height } = Dimensions.get('window');
 
-const LandingAnimation = ({ setStartGame, categoryName, author }) => {
-  const [purple] = useState('#c956ff');
-  const [dateToday] = useState(new Date().toDateString());
+const LandingAnimation = ({ setStartGame, categoryName, author, setGameDate, gameDate }) => {
   const [isSpinning, setIsSpinning] = useState(false);
 
   const titleText = '21Things';
@@ -16,12 +15,11 @@ const LandingAnimation = ({ setStartGame, categoryName, author }) => {
 
   const AnimatedHexContainer = animated(View);
 
-  // Hexagon Spin Animation
   const spin = useSpring({
     from: { rotate: "0deg" },
     to: async (next) => {
       if (isSpinning) {
-        await next({ rotate: "360deg" }); // Full rotation
+        await next({ rotate: "360deg" });
       }
     },
     config: {
@@ -32,20 +30,13 @@ const LandingAnimation = ({ setStartGame, categoryName, author }) => {
     onRest: () => setIsSpinning(false),
   });
 
-
-
-  // Handle Spin Trigger
   const handleSpin = () => {
-    setIsSpinning(true); // Trigger hexagon spin
+    setIsSpinning(true)
   };
 
-  useEffect(() => {
-    // Ensure the wobble animation starts immediately on mount
-  }, []);
 
   return (
     <View style={styles.container}>
-      {/* HexButton with Spin Animation */}
       <AnimatedHexContainer
         style={[styles.hexContainer, { transform: [{ rotate: spin.rotate }] }]}
       >
@@ -54,7 +45,6 @@ const LandingAnimation = ({ setStartGame, categoryName, author }) => {
         </TouchableOpacity>
       </AnimatedHexContainer>
 
-      {/* Title Text */}
       <View style={styles.titleContainer}>
         {titleText.split('').map((char, i) => (
           <Text key={i} style={styles.text}>
@@ -63,11 +53,7 @@ const LandingAnimation = ({ setStartGame, categoryName, author }) => {
         ))}
       </View>
 
-      {/* Category Wrapper */}
-      <View style={styles.categoryWrapper}>
-        <Text style={styles.catText}>{categoryName}</Text>
-        <Text style={[styles.catText, { fontSize: 18 }]}>{`Created by: ${author}`}</Text>
-      </View>
+      <DatePicker gameDate={gameDate} setGameDate={setGameDate} categoryName={categoryName} author={author}/>
 
       <PlayButton setStartGame={setStartGame}/>
 
@@ -94,6 +80,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 10,
     marginTop: -50,
+    color: 'black'
   },
   titleContainer: {
     flexDirection: 'row',

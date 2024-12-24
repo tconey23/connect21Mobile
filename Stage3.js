@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, ScrollView, Text, TextInput, StyleSheet, Dimensions, Keyboard } from 'react-native';
+import { View, ScrollView, Text, TextInput, StyleSheet, Dimensions, Keyboard, Linking } from 'react-native';
 import { captureScreen } from "react-native-view-shot";
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
@@ -7,7 +7,7 @@ import Selection from './Selection';
 
 const { width } = Dimensions.get('window');
 
-const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelectionLimit, saveDatePlayed, share }) => {
+const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelectionLimit, saveDatePlayed, share, displayName }) => {
   const viewRef = useRef(null);
   const [contentHeight, setContentHeight] = useState(0);
   const [scale, setScale] = useState(1)
@@ -18,6 +18,48 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [keyboardWasOpened, setKeyboardWasOpened] = useState(false)
   const scrollViewRef = useRef(null);
+  const [devProd, setDevProd] = useState('prod')
+
+  const sendGameLink = async (gamePath) => {
+
+    const url = `${gamePath}`;
+    const message = `Check out this saved game: ${url}`;
+    const encodedMessage = encodeURIComponent(message);
+  
+    try {
+      // const smsURL = `sms:?body=${encodedMessage}`;
+      const smsURL = `mailto:?body=${encodedMessage}`;
+      await Linking.openURL(smsURL);
+    } catch (error) {
+      console.error('Error sending SMS:', error);
+    }
+  };
+
+  const saveGameData = async () => {
+    options.push({user:{name: displayName}}, {userComment:{text: userText}})
+
+    let endpoint
+
+    devProd === 'dev' ? endpoint = 'https://secure-beach-74758-ab0619edd0f3.herokuapp.com' : endpoint = 'http://10.0.0.155:5001'
+
+    try {  
+      const res = await fetch(`${endpoint}/api/gamedata`, {
+        method: "POST",
+        body: JSON.stringify(options),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8"
+        }
+      });
+      const data = await res.json()
+      saveDatePlayed().then(sendGameLink(`https://secure-beach-74758-ab0619edd0f3.herokuapp.com/api/getdbpath?path=/${data}`))
+    } catch (error) {
+      console.error("Error sending data:", error);
+    }
+  };
+
+  useEffect(() => {
+    share && userText && saveGameData()
+  }, [share])
 
   const scrollToBottom = () => {
     if (scrollViewRef.current) {
@@ -41,31 +83,31 @@ const Stage3 = ({ options, setSelectionCount, currentStage, setPrompts, setSelec
     };
   }, []);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if(isKeyboardVisible){
-      scrollToBottom()
-      setKeyboardWasOpened(true)
-    } 
+  //   if(isKeyboardVisible){
+  //     scrollToBottom()
+  //     setKeyboardWasOpened(true)
+  //   } 
 
-    if(!isKeyboardVisible && keyboardWasOpened && share) {
-      setTimeout(() => {        
-        captureScreen({
-          format: "jpg",
-          quality: 0.8,
-        }).then(
-          (uri) => takeScreenshotAndShare(uri),
-          (error) => console.error("Oops, snapshot failed", error)
-        );
-      }, 200);
-    }
+  //   if(!isKeyboardVisible && keyboardWasOpened && share) {
+  //     setTimeout(() => {        
+  //       captureScreen({
+  //         format: "jpg",
+  //         quality: 0.8,
+  //       }).then(
+  //         (uri) => takeScreenshotAndShare(uri),
+  //         (error) => console.error("Oops, snapshot failed", error)
+  //       );
+  //     }, 200);
+  //   }
 
-    if(isKeyboardVisible && share){
-      Keyboard.dismiss()
-    }
+  //   if(isKeyboardVisible && share){
+  //     Keyboard.dismiss()
+  //   }
 
 
-  }, [isKeyboardVisible, keyboardWasOpened, share])
+  // }, [isKeyboardVisible, keyboardWasOpened, share])
 
   const takeScreenshotAndShare = async (uri) => {
     const filePath = `${RNFS.DocumentDirectoryPath}/${Date.now()}_screenshot.png`;

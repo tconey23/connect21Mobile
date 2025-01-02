@@ -19,8 +19,16 @@ const HelpPage = ({setToggleHelp, toggleHelp}) => {
     const [purple] = useState('#c956ff')
 
     useEffect(() => {
-        toggleHelp ? setModalVisible(true) : setModalVisible(false)
-    }, [toggleHelp])
+        if(toggleHelp){
+            setModalVisible(true)
+        } else {setToggleHelp(false)}
+    },  [toggleHelp])
+
+    const handleToggleHelp = () => {
+        console.log(toggleHelp)
+      setToggleHelp(false)
+      setModalVisible(prev => !prev)
+    }
 
     return (
 <Modal
@@ -88,7 +96,7 @@ const HelpPage = ({setToggleHelp, toggleHelp}) => {
                 <View style={{ paddingVertical: 20, zIndex: 1 }}>
                     {Platform.OS === 'ios' ? 
                         <TouchableOpacity 
-                            onPress={() => setToggleHelp('landing')}
+                            onPress={() => handleToggleHelp()}
                             style={{
                                 alignSelf: 'center',
                                 backgroundColor: purple,
@@ -103,8 +111,8 @@ const HelpPage = ({setToggleHelp, toggleHelp}) => {
                             </Text>
                         </TouchableOpacity>
                     :
-                        <Pressable
-                            onPress={() => setToggleHelp(false)}
+                        <TouchableOpacity
+                            onPress={() => handleToggleHelp()}
                             style={{
                                 alignSelf: 'center',
                                 backgroundColor: purple,
@@ -118,7 +126,7 @@ const HelpPage = ({setToggleHelp, toggleHelp}) => {
                             <Text style={{ textAlign: 'center', color: 'white' }}>
                                 LET'S BEGIN!
                             </Text>
-                        </Pressable>
+                        </TouchableOpacity>
                     }
                 </View>
             </View>

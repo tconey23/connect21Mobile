@@ -29,7 +29,12 @@ const AccountInfo = ({toggleAccount, setToggleAccount, displayName, resetDisplay
         }))
     }
 
-    const handleCreateAccount = async () => { 
+    const handleCreateAccount = async (disp) => { 
+
+        if(!disp) {
+            setModalVisible(false)
+        }
+
         const endpoint = devProd === 'dev'
             ? 'https://secure-beach-74758-ab0619edd0f3.herokuapp.com'
             : 'http://10.0.0.155:5001';

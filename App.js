@@ -208,7 +208,7 @@ export default function App() {
     if (startGame) {
       setDisplay('game');
     } else {
-      setDisplay('landing');
+      setDisplay('landing')
       fetchOptions();
     }
   }, [startGame]);
